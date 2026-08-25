@@ -1,0 +1,6 @@
+{
+  "name": "RumaRasa - Perabot & Home Living UMKM",
+  "description": "Website katalog perabotan rumah tangga modern Perabotan Bu Ngatmin dengan sistem troli belanja dan chat langsung pembeli & penjual.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
