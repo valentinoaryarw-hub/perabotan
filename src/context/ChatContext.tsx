@@ -340,38 +340,47 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     product?: ProductSummary
   ) => {
     setTimeout(() => {
-      let replyText = 'Halo! Sugeng rawuh di Toko Perabotan Bu Ngatmin. Ada yang bisa Bu Ngatmin bantu untuk keperluan perabotan rumahnya?';
-      const lower = customerText.toLowerCase();
+      // Check if conversation already received a reply from seller to avoid repeating
+      setConversations((prev) => {
+        const target = prev.find((c) => c.id === conversationId);
+        if (!target) return prev;
 
-      if (lower.includes('tersedia') || lower.includes('ready') || lower.includes('stok') || lower.includes('ada')) {
-        const stockCount = product?.stock || 30;
-        replyText = `Halo! Untuk ${product?.name || 'produk ini'} stoknya ready ${stockCount} unit siap kirim nggih. Mau dikirim ke alamat mana?`;
-      } else if (lower.includes('panci') || lower.includes('wajan') || lower.includes('masak')) {
-        replyText = `Halo! Panci dan wajan kami berbahan tebal food grade, anti lengket, dan tahan karat. Sangat awet dipakai masak sehari-hari. Mau order berapa unit?`;
-      } else if (lower.includes('gayung') || lower.includes('ember') || lower.includes('baskom')) {
-        replyText = `Halo! Gayung, ember, dan baskom kami terbuat dari plastik murni elastis tebal anti pecah dan awet bertahun-tahun. Mau pilih warna apa nggih?`;
-      } else if (lower.includes('sapu') || lower.includes('lidi') || lower.includes('pengki') || lower.includes('ijuk')) {
-        replyText = `Halo! Sapu ijuk dan lidi kami dianyam kawat kencang, tidak mudah rontok dan gagang kayunya halus di tangan. Sangat bersih untuk menyapu lantai & halaman.`;
-      } else if (lower.includes('piring') || lower.includes('sendok') || lower.includes('mangkok') || lower.includes('toples')) {
-        replyText = `Halo! Untuk piring, sendok, mangkok, dan toples kaca/plastik kami bungkus ekstra bubble wrap tebal + kardus. Dijamin aman sampai rumah!`;
-      } else if (lower.includes('diskon') || lower.includes('potongan') || lower.includes('harga') || lower.includes('grosir')) {
-        replyText = `Halo! Untuk pembelian lebih dari 2 pcs atau grosir keperluan hajatan/rumah makan, Bu Ngatmin beri harga spesial nggih. Boleh tahu butuh berapa unit?`;
-      } else if (lower.includes('kirim') || lower.includes('ongkir') || lower.includes('alamat')) {
-        replyText = `Halo! Kami siap kirim cepat ke seluruh kecamatan & kota via kurir kargo, reguler, maupun instan. Silakan kirimkan alamat lengkapnya nggih!`;
-      }
+        const hasSellerReply = target.messages.some((m) => m.senderRole === 'seller');
+        if (hasSellerReply) {
+          return prev; // Do not auto-reply repeatedly
+        }
 
-      const sellerMsg: ChatMessage = {
-        id: 'msg-reply-' + Date.now().toString(36),
-        conversationId: conversationId,
-        senderId: INITIAL_SELLER_INFO.id,
-        senderRole: 'seller',
-        senderName: INITIAL_SELLER_INFO.name,
-        text: replyText,
-        timestamp: Date.now(),
-      };
+        let replyText = 'Halo! Sugeng rawuh di Toko Perabotan Bu Ngatmin. Ada yang bisa Bu Ngatmin bantu untuk keperluan perabotan rumahnya?';
+        const lower = customerText.toLowerCase();
 
-      setConversations((prev) =>
-        prev.map((c) => {
+        if (lower.includes('tersedia') || lower.includes('ready') || lower.includes('stok') || lower.includes('ada')) {
+          const stockCount = product?.stock || 30;
+          replyText = `Halo! Untuk ${product?.name || 'produk ini'} stoknya ready ${stockCount} unit siap kirim nggih. Mau dikirim ke alamat mana?`;
+        } else if (lower.includes('panci') || lower.includes('wajan') || lower.includes('masak')) {
+          replyText = `Halo! Panci dan wajan kami berbahan tebal food grade, anti lengket, dan tahan karat. Sangat awet dipakai masak sehari-hari. Mau order berapa unit?`;
+        } else if (lower.includes('gayung') || lower.includes('ember') || lower.includes('baskom')) {
+          replyText = `Halo! Gayung, ember, dan baskom kami terbuat dari plastik murni elastis tebal anti pecah dan awet bertahun-tahun. Mau pilih warna apa nggih?`;
+        } else if (lower.includes('sapu') || lower.includes('lidi') || lower.includes('pengki') || lower.includes('ijuk')) {
+          replyText = `Halo! Sapu ijuk dan lidi kami dianyam kawat kencang, tidak mudah rontok dan gagang kayunya halus di tangan. Sangat bersih untuk menyapu lantai & halaman.`;
+        } else if (lower.includes('piring') || lower.includes('sendok') || lower.includes('mangkok') || lower.includes('toples')) {
+          replyText = `Halo! Untuk piring, sendok, mangkok, dan toples kaca/plastik kami bungkus ekstra bubble wrap tebal + kardus. Dijamin aman sampai rumah!`;
+        } else if (lower.includes('diskon') || lower.includes('potongan') || lower.includes('harga') || lower.includes('grosir')) {
+          replyText = `Halo! Untuk pembelian lebih dari 2 pcs atau grosir keperluan hajatan/rumah makan, Bu Ngatmin beri harga spesial nggih. Boleh tahu butuh berapa unit?`;
+        } else if (lower.includes('kirim') || lower.includes('ongkir') || lower.includes('alamat')) {
+          replyText = `Halo! Kami siap kirim cepat ke seluruh kecamatan & kota via kurir kargo, reguler, maupun instan. Silakan kirimkan alamat lengkapnya nggih!`;
+        }
+
+        const sellerMsg: ChatMessage = {
+          id: 'msg-reply-' + Date.now().toString(36),
+          conversationId: conversationId,
+          senderId: INITIAL_SELLER_INFO.id,
+          senderRole: 'seller',
+          senderName: INITIAL_SELLER_INFO.name,
+          text: replyText,
+          timestamp: Date.now(),
+        };
+
+        return prev.map((c) => {
           if (c.id === conversationId) {
             return {
               ...c,
@@ -382,8 +391,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
           }
           return c;
-        })
-      );
+        });
+      });
     }, 1000);
   };
 
@@ -413,12 +422,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       orderSummaryDetails: orderSummaryDetails,
     };
 
-    let targetConv: ChatConversation | undefined;
+    let needsInitialAutoReply = false;
+    let targetProductSnapshot = productSnapshot;
 
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === conversationId) {
-          targetConv = c;
+          const hasSellerReply = c.messages.some((m) => m.senderRole === 'seller');
+          if (isCustomer && !hasSellerReply && !orderSummaryDetails) {
+            needsInitialAutoReply = true;
+            targetProductSnapshot = productSnapshot || c.productSnapshot;
+          }
+
           return {
             ...c,
             messages: [...c.messages, newMsg],
@@ -433,8 +448,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
     );
 
-    if (isCustomer && !orderSummaryDetails) {
-      triggerSellerAutoReply(conversationId, text, productSnapshot || targetConv?.productSnapshot);
+    if (needsInitialAutoReply) {
+      triggerSellerAutoReply(conversationId, text, targetProductSnapshot);
     }
   };
 
