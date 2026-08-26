@@ -1,9 +1,7 @@
 import React from 'react';
-import { Heart, ShoppingBag, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Heart, ShoppingBag, ChevronRight } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
-import { PRODUCTS } from '../data/products';
-import { ProductCard } from '../components/product/ProductCard';
-import { navigateTo } from '../utils/router';
+import { ProductGrid } from '../components/product/ProductGrid';
 
 export const WishlistPage: React.FC = () => {
   const { wishlistProducts } = useWishlist();
@@ -50,11 +48,10 @@ export const WishlistPage: React.FC = () => {
           </a>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
-          {favoriteProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        <ProductGrid
+          products={favoriteProducts}
+          columnsDesktop="sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+        />
       )}
     </div>
   );

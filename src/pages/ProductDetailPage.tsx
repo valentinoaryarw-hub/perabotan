@@ -20,7 +20,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { formatRupiah, calculateDiscountPercentage } from '../utils/currency';
-import { ProductCard } from '../components/product/ProductCard';
+import { ProductGrid } from '../components/product/ProductGrid';
 import { navigateTo } from '../utils/router';
 
 interface ProductDetailPageProps {
@@ -441,11 +441,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
             </a>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5">
-            {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          <ProductGrid
+            products={relatedProducts}
+            columnsDesktop="sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+          />
         </div>
       )}
     </div>

@@ -354,6 +354,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
           <ProductGrid
             products={filteredProducts}
             onResetFilters={handleResetFilters}
+            columnsDesktop="sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
           />
         </div>
       </div>

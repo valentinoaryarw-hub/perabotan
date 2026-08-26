@@ -49,7 +49,7 @@ export function generateCartOrderMessage(
 
   message += `━━━━━━━━━━━━━━━━━━━━━\n`;
   message += `💰 *TOTAL SEMENTARA: ${formatRupiah(totalAmount)}*\n`;
-  message += `_(Belum termasuk ongkir, akan dicek tim RumaRasa)_\n\n`;
+  message += `_(Belum termasuk ongkir, akan dikonfirmasi Bu Ngatmin)_\n\n`;
 
   message += `📍 *DATA PENGIRIMAN:*\n`;
   message += `• Nama: ${customerData?.name?.trim() ? customerData.name : '—'}\n`;

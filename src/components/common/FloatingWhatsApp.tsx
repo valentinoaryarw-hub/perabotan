@@ -32,10 +32,10 @@ export const FloatingWhatsApp: React.FC = () => {
                 <MessageCircle className="w-5 h-5 fill-white text-transparent" />
               </div>
               <div>
-                <h4 className="font-semibold text-sm leading-tight">Customer Service RumaRasa</h4>
+                <h4 className="font-semibold text-sm leading-tight">Customer Service Perabotan Bu Ngatmin</h4>
                 <p className="text-[11px] text-white/80 flex items-center gap-1 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                  Online • Siap Membantu
+                  Online • Bu Ngatmin Siap Membantu
                 </p>
               </div>
             </div>
@@ -53,10 +53,10 @@ export const FloatingWhatsApp: React.FC = () => {
           <div className="p-4 bg-[#F8FAF9] space-y-3">
             <div className="bg-white p-3 rounded-2xl rounded-tl-xs shadow-xs text-xs text-[#242424] leading-relaxed border border-[#E7E7E7]">
               <p>
-                Halo! Ada yang bisa kami bantu? Mau tanya detail ukuran, stok, atau rekomendasi perabot untuk ruangan Anda?
+                Halo! Mau tanya perabot dapur, sapu, piring, ember, atau rekomendasi perlengkapan rumah tangga? Bu Ngatmin siap bantu ya!
               </p>
               <span className="text-[9px] text-[#667085] block text-right mt-1.5">
-                Admin RumaRasa
+                Bu Ngatmin
               </span>
             </div>
 
@@ -68,24 +68,24 @@ export const FloatingWhatsApp: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  const url = createWhatsAppUrl('Halo, saya ingin tanya stok perabot dan estimasi ongkir ke kota saya.');
+                  const url = createWhatsAppUrl('Halo Bu Ngatmin, saya ingin tanya stok perabotan dan estimasi ongkir ke alamat saya.');
                   window.open(url, '_blank');
                   setIsOpen(false);
                 }}
                 className="w-full text-left text-xs bg-white hover:bg-[#F8E9EB] hover:text-[#8F1D2C] border border-[#E7E7E7] rounded-xl px-2.5 py-1.5 transition-colors truncate"
               >
-                📦 Tanya estimasi ongkir & stok
+                📦 Tanya estimasi ongkir & stok perabot
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  const url = createWhatsAppUrl('Halo, apakah perabot kayu di RumaRasa bisa custom ukuran atau warna?');
+                  const url = createWhatsAppUrl('Halo Bu Ngatmin, apakah ada diskon grosir jika beli peralatan dapur & perlengkapan rumah dalam jumlah banyak?');
                   window.open(url, '_blank');
                   setIsOpen(false);
                 }}
                 className="w-full text-left text-xs bg-white hover:bg-[#F8E9EB] hover:text-[#8F1D2C] border border-[#E7E7E7] rounded-xl px-2.5 py-1.5 transition-colors truncate"
               >
-                📐 Tanya custom ukuran perabot
+                🍳 Tanya diskon pembelian banyak / grosir
               </button>
             </div>
           </div>

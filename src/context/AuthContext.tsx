@@ -14,8 +14,8 @@ interface AuthContextType {
   requireAuth: (action: () => void) => void;
 }
 
-const STORAGE_KEY_USER = 'rumarasa_user_identity_v3';
-const STORAGE_KEY_ROLE = 'rumarasa_active_role_v3';
+const STORAGE_KEY_USER = 'bungatmin_user_identity_v1';
+const STORAGE_KEY_ROLE = 'bungatmin_active_role_v1';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

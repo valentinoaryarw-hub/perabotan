@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { STORE_CONFIG } from '../../config/store';
 import { CATEGORIES } from '../../data/categories';
+import { BrandLogo } from './BrandLogo';
 
 export const Footer: React.FC = () => {
   return (
@@ -23,9 +24,9 @@ export const Footer: React.FC = () => {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-[#242424]">Pengrajin Lokal Berkualitas</h4>
+              <h4 className="text-xs font-bold text-[#242424]">Pengrajin & Pabrik Pilihan</h4>
               <p className="text-[11px] text-[#667085] mt-0.5 leading-relaxed">
-                Dibuat dengan kayu pilihan & konstruksi kokoh presisi dari perajin Indonesia.
+                Produk awet berkualitas, bahan tebal, dan sudah teruji dipakai harian.
               </p>
             </div>
           </div>
@@ -35,9 +36,9 @@ export const Footer: React.FC = () => {
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-[#242424]">Chat Langsung Penjual</h4>
+              <h4 className="text-xs font-bold text-[#242424]">Chat Langsung Bu Ngatmin</h4>
               <p className="text-[11px] text-[#667085] mt-0.5 leading-relaxed">
-                Tanya stok, custom ukuran, & sepakati harga langsung dalam ruang chat.
+                Tanya stok, diskon, & konfirmasi pengiriman langsung dalam ruang chat.
               </p>
             </div>
           </div>
@@ -61,7 +62,7 @@ export const Footer: React.FC = () => {
             <div>
               <h4 className="text-xs font-bold text-[#242424]">Garansi Sampai Tujuan</h4>
               <p className="text-[11px] text-[#667085] mt-0.5 leading-relaxed">
-                Jaminan ganti part / barang jika ada kendala saat pengiriman ekspedisi.
+                Jaminan ganti barang jika ada kendala atau pecah saat pengiriman ekspedisi.
               </p>
             </div>
           </div>
@@ -73,14 +74,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Col 1: Brand & Tagline */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-lg">
-                R
-              </div>
-              <span className="font-bold text-xl tracking-tight text-[#242424]">
-                Ruma<span className="text-[#8F1D2C]">Rasa</span>
-              </span>
-            </div>
+            <BrandLogo size="md" />
             <p className="text-xs text-[#667085] leading-relaxed max-w-sm">
               {STORE_CONFIG.description}
             </p>
@@ -91,7 +85,7 @@ export const Footer: React.FC = () => {
                 className="inline-flex items-center gap-2 bg-[#8F1D2C] hover:bg-[#64121D] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-xs"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Mulai Chat Penjual</span>
+                <span>Mulai Chat Bu Ngatmin</span>
               </a>
             </div>
           </div>
@@ -114,12 +108,12 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a href="#/chat" className="hover:text-[#8F1D2C] transition-colors">
-                  Chat Penjual
+                  Chat Bu Ngatmin
                 </a>
               </li>
               <li>
                 <a href="#/about" className="hover:text-[#8F1D2C] transition-colors">
-                  Tentang RumaRasa
+                  Tentang Bu Ngatmin
                 </a>
               </li>
               <li>

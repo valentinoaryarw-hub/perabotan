@@ -133,10 +133,10 @@ export const SellerPage: React.FC = () => {
               DASHBOARD PENJUAL UMKM
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-[#242424]">
-              Toko RumaRasa Official
+              Toko Perabotan Bu Ngatmin
             </h1>
             <p className="text-xs sm:text-sm text-[#667085]">
-              Kelola pesan masuk dari calon pembeli dan perbarui data katalog perabot Anda.
+              Kelola pesan masuk dari calon pembeli dan perbarui data katalog perabotan Anda.
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ import {
 import { useProducts } from '../context/ProductContext';
 import { CATEGORIES } from '../data/categories';
 import { FilterState } from '../types';
-import { ProductCard } from '../components/product/ProductCard';
+import { ProductGrid } from '../components/product/ProductGrid';
 
 export const HomePage: React.FC = () => {
   const { products } = useProducts();
@@ -246,30 +246,11 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* 4. PRODUCT GRID */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
-          {filteredProducts.map((prod) => (
-            <ProductCard key={prod.id} product={prod} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-3xl border border-[#E7E7E7] p-12 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center mx-auto">
-            <Package className="w-8 h-8" />
-          </div>
-          <h3 className="text-lg font-bold text-[#242424]">Tidak Ada Produk Ditemukan</h3>
-          <p className="text-xs text-[#667085] max-w-sm mx-auto">
-            Coba ubah kata kunci pencarian atau reset filter kategori untuk melihat semua koleksi perabot kami.
-          </p>
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="px-5 py-2.5 bg-[#8F1D2C] hover:bg-[#64121D] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
-          >
-            Tampilkan Semua Produk
-          </button>
-        </div>
-      )}
+      <ProductGrid
+        products={filteredProducts}
+        onResetFilters={handleResetFilters}
+        columnsDesktop="sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+      />
     </div>
   );
 };

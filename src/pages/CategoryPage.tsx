@@ -15,7 +15,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug }) => {
     id: categorySlug,
     slug: categorySlug,
     name: 'Kategori Perabot',
-    description: 'Koleksi perabot rumah tangga pilihan RumaRasa.',
+    description: 'Koleksi perlengkapan rumah tangga pilihan Toko Perabotan Bu Ngatmin.',
     image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
     productCount: 0,
     iconName: 'Layers',

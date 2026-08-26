@@ -139,12 +139,12 @@ export const ProfilePage: React.FC = () => {
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center font-bold text-xs shrink-0">
-                      RR
+                      BN
                     </div>
                   )}
                   <div className="min-w-0">
                     <h4 className="text-xs sm:text-sm font-bold text-[#242424] truncate">
-                      {c.productSnapshot ? c.productSnapshot.name : 'Toko RumaRasa'}
+                      {c.productSnapshot ? c.productSnapshot.name : 'Perabotan Bu Ngatmin'}
                     </h4>
                     <p className="text-xs text-[#667085] truncate">
                       {c.lastMessage}

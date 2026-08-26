@@ -34,7 +34,7 @@ export const ContactPage: React.FC = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const directWaUrl = createWhatsAppUrl('Halo RumaRasa, saya ingin bertanya info perabot.');
+  const directWaUrl = createWhatsAppUrl('Halo Bu Ngatmin, saya ingin bertanya info perabotan.');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-10">
