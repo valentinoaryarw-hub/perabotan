@@ -107,10 +107,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-[#E7E7E7] shadow-xs">
       {/* 0. TOP UTILITY BAR (Tentang Bu Ngatmin & Bantuan at Far Right) */}
-      <div className="bg-[#FAFAF9] border-b border-[#E7E7E7]/80 text-[#667085] text-[11px]">
+      <div className="bg-[#5A101A] text-[#FDE8EB] text-[11px]">
         <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between h-7 sm:h-8">
-          <div className="flex items-center gap-2 text-[11px] font-medium text-[#667085] truncate">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#2E7D5B]"></span>
+          <div className="flex items-center gap-2 text-[11px] font-medium text-[#F6D0D6] truncate">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span className="hidden sm:inline">Toko Perabot Rumah Tangga Bu Ngatmin • Melayani Eceran & Grosir</span>
             <span className="sm:hidden">Toko Perabot Bu Ngatmin</span>
           </div>
@@ -118,19 +118,19 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
           <div className="flex items-center gap-3 sm:gap-5 font-medium shrink-0">
             <a
               href="#/about"
-              className="hover:text-[#8F1D2C] transition-colors flex items-center gap-1.5 py-1"
+              className="text-[#F6D0D6] hover:text-white transition-colors flex items-center gap-1.5 py-1"
               id="topbar-about-link"
             >
-              <Info className="w-3.5 h-3.5 text-[#667085]" />
+              <Info className="w-3.5 h-3.5 text-[#F6D0D6]" />
               <span>Tentang Bu Ngatmin</span>
             </a>
-            <div className="h-3 w-px bg-[#DCDFE5]" />
+            <div className="h-3 w-px bg-white/20" />
             <a
               href="#/faq"
-              className="hover:text-[#8F1D2C] transition-colors flex items-center gap-1.5 py-1"
+              className="text-[#F6D0D6] hover:text-white transition-colors flex items-center gap-1.5 py-1"
               id="topbar-faq-link"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-[#667085]" />
+              <HelpCircle className="w-3.5 h-3.5 text-[#F6D0D6]" />
               <span>Bantuan</span>
             </a>
           </div>
@@ -464,25 +464,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                       </span>
                     )}
                   </a>
-
-                  <a
-                    href="#/seller"
-                    onClick={() => {
-                      setActiveRole('seller');
-                      setIsUserMenuOpen(false);
-                    }}
-                    className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[#8F1D2C] bg-[#F8E9EB]/60 hover:bg-[#F8E9EB] transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Store className="w-4 h-4" />
-                      <span>Dashboard Penjual</span>
-                    </div>
-                    {unreadCountForSeller > 0 && (
-                      <span className="px-1.5 py-0.2 bg-[#8F1D2C] text-white text-[9px] font-bold rounded-full">
-                        {unreadCountForSeller}
-                      </span>
-                    )}
-                  </a>
                 </div>
               )}
             </div>
@@ -629,16 +610,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
               className="block px-3 py-1.5 text-xs text-[#667085] hover:text-[#8F1D2C]"
             >
               Bantuan & FAQ
-            </a>
-            <a
-              href="#/seller"
-              onClick={() => {
-                setActiveRole('seller');
-                setIsMobileMenuOpen(false);
-              }}
-              className="block px-3 py-1.5 text-xs text-[#8F1D2C] font-bold"
-            >
-              Mode Penjual (Admin Toko)
             </a>
           </div>
         </div>

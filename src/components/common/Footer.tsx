@@ -179,20 +179,20 @@ export const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Copyright & Discreet Admin Access */}
-      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 border-t border-[#E7E7E7] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#667085]">
-        <p>© 2026 {STORE_CONFIG.name}. Hak Cipta Dilindungi. Katalog Perabot Modern & Chat Langsung.</p>
+      {/* Bottom Copyright & Subtle Hidden Admin Icon */}
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 border-t border-[#E7E7E7] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#667085]">
+        <p>© 2026 {STORE_CONFIG.name}. Hak Cipta Dilindungi. Melayani Eceran & Grosir.</p>
         
-        {/* Discreet Admin Panel Link at the very bottom */}
-        <div className="flex items-center gap-4 text-[11px]">
+        {/* Subtle, unnoticeable Admin Entry Icon for Store Owner only */}
+        <div className="flex items-center gap-2">
           <a
             href="#/admin"
-            className="flex items-center gap-1 text-[#667085] hover:text-[#8F1D2C] transition-colors py-1 px-2 rounded-md hover:bg-gray-100/60"
-            title="Kelola Toko & Pesanan"
+            className="p-1 text-[#CBD5E1] hover:text-[#8F1D2C] opacity-30 hover:opacity-100 transition-all rounded-md"
+            title=""
+            aria-label="Admin"
             id="footer-admin-link"
           >
-            <Lock className="w-3 h-3 text-[#667085]" />
-            <span>Panel Admin Toko</span>
+            <Lock className="w-3 h-3" />
           </a>
         </div>
       </div>

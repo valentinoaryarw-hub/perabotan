@@ -13,6 +13,11 @@ import {
   X,
   Sparkles,
   TrendingUp,
+  Lock,
+  KeyRound,
+  ShieldAlert,
+  ArrowLeft,
+  LogOut,
 } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useChat } from '../context/ChatContext';
@@ -27,10 +32,105 @@ export const SellerPage: React.FC = () => {
   const { conversations, setActiveConversationId, unreadCountForSeller } = useChat();
   const { setActiveRole } = useAuth();
 
+  // Admin PIN Protection (PIN: 110203)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('bu_ngatmin_admin_auth') === 'true';
+  });
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+
   const [activeTab, setActiveTab] = useState<'chats' | 'products' | 'store'>('chats');
   const [productSearch, setProductSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput === '110203') {
+      sessionStorage.setItem('bu_ngatmin_admin_auth', 'true');
+      setIsAuthenticated(true);
+      setActiveRole('seller');
+      setPinError('');
+    } else {
+      setPinError('PIN salah! Akses khusus untuk pemilik Toko Bu Ngatmin.');
+      setPinInput('');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem('bu_ngatmin_admin_auth');
+    setIsAuthenticated(false);
+    setActiveRole('customer');
+    navigateTo('#/');
+  };
+
+  // If not authenticated, show PIN Gate
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white rounded-3xl border border-[#E7E7E7] p-6 sm:p-8 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95">
+          <div className="w-16 h-16 rounded-3xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center mx-auto shadow-xs">
+            <Lock className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAFAF9] border border-[#E7E7E7] text-[#667085] text-[11px] font-bold uppercase tracking-wider">
+              <KeyRound className="w-3 h-3 text-[#8F1D2C]" />
+              Akses Khusus Pemilik
+            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#242424]">
+              Panel Pengelola Toko
+            </h1>
+            <p className="text-xs sm:text-sm text-[#667085] leading-relaxed">
+              Halaman ini bersifat privat dan hanya dapat diakses oleh pemilik Toko Perabot Bu Ngatmin.
+            </p>
+          </div>
+
+          <form onSubmit={handlePinSubmit} className="space-y-4 text-left">
+            <div>
+              <label className="block text-xs font-bold text-[#242424] mb-1.5">
+                Masukkan PIN Keamanan Admin:
+              </label>
+              <input
+                type="password"
+                maxLength={6}
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value);
+                  if (pinError) setPinError('');
+                }}
+                placeholder="••••"
+                autoFocus
+                className="w-full text-center tracking-[0.5em] text-lg font-mono px-4 py-3 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl text-[#242424] focus:outline-hidden focus:border-[#8F1D2C] focus:bg-white focus:ring-2 focus:ring-[#8F1D2C]/10 transition-all font-bold"
+              />
+              {pinError && (
+                <p className="text-[11px] text-[#8F1D2C] font-semibold mt-1.5 flex items-center gap-1">
+                  <ShieldAlert className="w-3.5 h-3.5" /> {pinError}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#8F1D2C] hover:bg-[#64121D] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Buka Panel Pengelola</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateTo('#/')}
+              className="w-full py-2.5 bg-transparent hover:bg-gray-100 text-[#667085] hover:text-[#242424] rounded-2xl text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Kembali ke Beranda Belanja</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // Form states for Add/Edit product
   const [formName, setFormName] = useState('');
@@ -141,34 +241,46 @@ export const SellerPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-[#FAFAF9] p-1.5 rounded-2xl border border-[#E7E7E7] self-start md:self-auto">
+        {/* Quick Tab Switcher & Logout */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-[#FAFAF9] p-1.5 rounded-2xl border border-[#E7E7E7]">
+            <button
+              type="button"
+              onClick={() => setActiveTab('chats')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'chats'
+                  ? 'bg-[#8F1D2C] text-white shadow-xs'
+                  : 'text-[#242424] hover:text-[#8F1D2C]'
+              }`}
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>Pesan Masuk ({conversations.length})</span>
+              {unreadCountForSeller > 0 && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('products')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'products'
+                  ? 'bg-[#8F1D2C] text-white shadow-xs'
+                  : 'text-[#242424] hover:text-[#8F1D2C]'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>Katalog Produk ({products.length})</span>
+            </button>
+          </div>
+
           <button
             type="button"
-            onClick={() => setActiveTab('chats')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'chats'
-                ? 'bg-[#8F1D2C] text-white shadow-xs'
-                : 'text-[#242424] hover:text-[#8F1D2C]'
-            }`}
+            onClick={handleAdminLogout}
+            className="px-3.5 py-2.5 rounded-2xl text-xs font-bold text-[#667085] hover:text-[#8F1D2C] hover:bg-[#F8E9EB] bg-[#FAFAF9] border border-[#E7E7E7] transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Kunci Panel Admin & Keluar"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span>Pesan Masuk ({conversations.length})</span>
-            {unreadCountForSeller > 0 && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('products')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'products'
-                ? 'bg-[#8F1D2C] text-white shadow-xs'
-                : 'text-[#242424] hover:text-[#8F1D2C]'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            <span>Katalog Produk ({products.length})</span>
+            <Lock className="w-3.5 h-3.5" />
+            <span>Kunci Admin</span>
           </button>
         </div>
       </div>
