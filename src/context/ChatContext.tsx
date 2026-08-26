@@ -11,7 +11,8 @@ interface ChatContextType {
     conversationId: string,
     text: string,
     senderRole?: 'customer' | 'seller',
-    orderSummary?: ChatMessage['orderSummaryDetails']
+    orderSummary?: ChatMessage['orderSummaryDetails'],
+    productSnapshot?: ProductSummary
   ) => void;
   finalizeDeal: (
     conversationId: string,
@@ -271,30 +272,44 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (!productSnapshot || c.productId === productSnapshot.id)
     );
 
+    const messageText =
+      initialMessage ||
+      (productSnapshot
+        ? `Halo Bu Ngatmin, saya ingin menanyakan informasi seputar produk ${productSnapshot.name}:`
+        : 'Halo Bu Ngatmin, saya ingin bertanya seputar produk perabot.');
+
     if (existing) {
       setActiveConversationId(existing.id);
-      if (initialMessage) {
-        sendMessage(existing.id, initialMessage, 'customer');
+      // Update product snapshot on existing conversation if new product
+      if (productSnapshot) {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === existing.id
+              ? { ...c, productId: productSnapshot!.id, productSnapshot: productSnapshot }
+              : c
+          )
+        );
+      }
+      if (initialMessage || productSnapshot) {
+        sendMessage(existing.id, messageText, 'customer', undefined, productSnapshot);
       }
       return existing.id;
     }
 
     // Create new conversation
     const newConvId = 'conv-' + Date.now().toString(36);
-    const initialMessages: ChatMessage[] = [];
-
-    if (initialMessage) {
-      initialMessages.push({
+    const initialMessages: ChatMessage[] = [
+      {
         id: 'msg-' + Date.now().toString(36),
         conversationId: newConvId,
         senderId: currentCustomer.id,
         senderRole: 'customer',
         senderName: currentCustomer.name,
-        text: initialMessage,
+        text: messageText,
         timestamp: Date.now(),
         productSnapshot: productSnapshot,
-      });
-    }
+      },
+    ];
 
     const newConv: ChatConversation = {
       id: newConvId,
@@ -304,9 +319,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       productId: productSnapshot?.id,
       productSnapshot: productSnapshot,
       messages: initialMessages,
-      lastMessage: initialMessage || 'Memulai percakapan dengan Bu Ngatmin...',
+      lastMessage: messageText,
       lastMessageTimestamp: Date.now(),
-      unreadBySeller: initialMessage ? 1 : 0,
+      unreadBySeller: 1,
       unreadByCustomer: 0,
       status: 'active',
     };
@@ -314,9 +329,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setConversations((prev) => [newConv, ...prev]);
     setActiveConversationId(newConvId);
 
-    if (initialMessage) {
-      triggerSellerAutoReply(newConvId, initialMessage, productSnapshot);
-    }
+    triggerSellerAutoReply(newConvId, messageText, productSnapshot);
 
     return newConvId;
   };
@@ -332,7 +345,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (lower.includes('tersedia') || lower.includes('ready') || lower.includes('stok') || lower.includes('ada')) {
         const stockCount = product?.stock || 30;
-        replyText = `Halo! Untuk ${product?.name || 'produk ini'} stoknya ready ${stockCount} unit siap kirim nggih. Mau kirim ke daerah mana?`;
+        replyText = `Halo! Untuk ${product?.name || 'produk ini'} stoknya ready ${stockCount} unit siap kirim nggih. Mau dikirim ke alamat mana?`;
       } else if (lower.includes('panci') || lower.includes('wajan') || lower.includes('masak')) {
         replyText = `Halo! Panci dan wajan kami berbahan tebal food grade, anti lengket, dan tahan karat. Sangat awet dipakai masak sehari-hari. Mau order berapa unit?`;
       } else if (lower.includes('gayung') || lower.includes('ember') || lower.includes('baskom')) {
@@ -378,7 +391,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     conversationId: string,
     text: string,
     senderRole?: 'customer' | 'seller',
-    orderSummaryDetails?: ChatMessage['orderSummaryDetails']
+    orderSummaryDetails?: ChatMessage['orderSummaryDetails'],
+    productSnapshot?: ProductSummary
   ) => {
     const role = senderRole || activeRole;
     const isCustomer = role === 'customer';
@@ -394,6 +408,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       senderName: senderName,
       text: text,
       timestamp: Date.now(),
+      productSnapshot: productSnapshot,
       isOrderSummary: !!orderSummaryDetails,
       orderSummaryDetails: orderSummaryDetails,
     };
@@ -419,7 +434,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     if (isCustomer && !orderSummaryDetails) {
-      triggerSellerAutoReply(conversationId, text, targetConv?.productSnapshot);
+      triggerSellerAutoReply(conversationId, text, productSnapshot || targetConv?.productSnapshot);
     }
   };
 

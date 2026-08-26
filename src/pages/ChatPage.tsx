@@ -9,6 +9,9 @@ import {
   Store,
   CheckCircle2,
   Package,
+  Paperclip,
+  Tag,
+  Sparkles,
 } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
@@ -73,7 +76,13 @@ export const ChatPage: React.FC = () => {
     if (!text || !activeConversation) return;
 
     requireAuth(() => {
-      sendMessage(activeConversation.id, text, activeRole);
+      sendMessage(
+        activeConversation.id,
+        text,
+        activeRole,
+        undefined,
+        activeConversation.productSnapshot
+      );
       setInputMessage('');
     });
   };
@@ -81,7 +90,27 @@ export const ChatPage: React.FC = () => {
   const handleSendQuickQuestion = (question: string) => {
     if (!activeConversation) return;
     requireAuth(() => {
-      sendMessage(activeConversation.id, question, activeRole);
+      sendMessage(
+        activeConversation.id,
+        question,
+        activeRole,
+        undefined,
+        activeConversation.productSnapshot
+      );
+    });
+  };
+
+  const handleSendAttachedProductPrompt = () => {
+    if (!activeConversation || !activeConversation.productSnapshot) return;
+    const prompt = `Halo Bu Ngatmin, saya melampirkan produk ${activeConversation.productSnapshot.name}. Apakah stok ready dan bisa dikirim segera?`;
+    requireAuth(() => {
+      sendMessage(
+        activeConversation.id,
+        prompt,
+        activeRole,
+        undefined,
+        activeConversation.productSnapshot
+      );
     });
   };
 
@@ -417,13 +446,65 @@ export const ChatPage: React.FC = () => {
                       </div>
                     ) : (
                       <div
-                        className={`max-w-xs sm:max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${
+                        className={`max-w-xs sm:max-w-md px-3.5 sm:px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${
                           isMe
                             ? 'bg-[#8F1D2C] text-white rounded-br-xs'
                             : 'bg-white border border-[#E7E7E7] text-[#242424] rounded-bl-xs'
                         }`}
                       >
-                        {msg.text}
+                        {/* Attached Product Card Inside Message */}
+                        {msg.productSnapshot && (
+                          <div
+                            className={`mb-2.5 rounded-xl p-2.5 flex items-center gap-2.5 border text-left transition-all ${
+                              isMe
+                                ? 'bg-white/10 border-white/20 text-white'
+                                : 'bg-[#FAFAF9] border-[#E7E7E7] text-[#242424]'
+                            }`}
+                          >
+                            <img
+                              src={msg.productSnapshot.image}
+                              alt={msg.productSnapshot.name}
+                              className="w-12 h-12 rounded-lg object-cover bg-white border border-black/10 shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider opacity-85">
+                                <Package className="w-3 h-3 shrink-0" />
+                                <span>Lampiran Produk</span>
+                              </div>
+                              <h5 className="text-xs font-bold truncate leading-tight mt-0.5">
+                                {msg.productSnapshot.name}
+                              </h5>
+                              <div className="flex items-center justify-between mt-1 gap-2">
+                                <span
+                                  className={`text-xs font-extrabold ${
+                                    isMe ? 'text-amber-200' : 'text-[#8F1D2C]'
+                                  }`}
+                                >
+                                  {formatRupiah(
+                                    msg.productSnapshot.discountPrice ||
+                                      msg.productSnapshot.price
+                                  )}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    navigateTo(`#/product/${msg.productSnapshot?.slug}`)
+                                  }
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 cursor-pointer transition-colors ${
+                                    isMe
+                                      ? 'bg-white text-[#8F1D2C] hover:bg-amber-50'
+                                      : 'bg-[#8F1D2C] text-white hover:bg-[#64121D]'
+                                  }`}
+                                >
+                                  <span>Detail</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>{msg.text}</div>
                       </div>
                     )}
 
@@ -440,22 +521,60 @@ export const ChatPage: React.FC = () => {
               })}
             </div>
 
-            {/* 4. QUICK SUGGESTION CHIPS */}
+            {/* 4. ACTIVE PRODUCT ATTACHMENT DOCK & QUICK SUGGESTION CHIPS */}
             {activeRole === 'customer' && (
-              <div className="px-3 sm:px-4 py-2 bg-white border-t border-[#E7E7E7] overflow-x-auto no-scrollbar flex items-center gap-1.5 shrink-0">
-                <span className="text-[10px] font-bold text-[#667085] whitespace-nowrap uppercase tracking-wider mr-1">
-                  Tanya Cepat:
-                </span>
-                {quickQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendQuickQuestion(q)}
-                    className="text-[11px] bg-[#FAFAF9] hover:bg-[#F8E9EB] hover:text-[#8F1D2C] text-[#242424] border border-[#E7E7E7] px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 cursor-pointer font-medium"
-                  >
-                    {q}
-                  </button>
-                ))}
+              <div className="border-t border-[#E7E7E7] bg-white shrink-0">
+                {activeConversation.productSnapshot && (
+                  <div className="px-3 sm:px-4 py-2 bg-[#F8E9EB]/60 border-b border-[#8F1D2C]/15 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-5 h-5 rounded-md bg-[#8F1D2C] text-white flex items-center justify-center shrink-0">
+                        <Paperclip className="w-3 h-3" />
+                      </div>
+                      <span className="text-[11px] font-bold text-[#8F1D2C] shrink-0">
+                        Lampiran Produk:
+                      </span>
+                      <img
+                        src={activeConversation.productSnapshot.image}
+                        alt=""
+                        className="w-6 h-6 rounded-md object-cover border border-[#8F1D2C]/30 bg-white shrink-0"
+                      />
+                      <span className="text-xs font-semibold text-[#242424] truncate max-w-[140px] sm:max-w-xs">
+                        {activeConversation.productSnapshot.name}
+                      </span>
+                      <span className="text-xs font-extrabold text-[#8F1D2C] shrink-0 hidden xs:inline">
+                        {formatRupiah(
+                          activeConversation.productSnapshot.discountPrice ||
+                            activeConversation.productSnapshot.price
+                        )}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSendAttachedProductPrompt}
+                      className="px-2.5 py-1 bg-[#8F1D2C] hover:bg-[#64121D] text-white rounded-lg text-[10px] font-bold shrink-0 transition-all shadow-2xs cursor-pointer flex items-center gap-1 active:scale-95"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>Kirim Lampiran</span>
+                    </button>
+                  </div>
+                )}
+
+                <div className="px-3 sm:px-4 py-2 overflow-x-auto no-scrollbar flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-[#667085] whitespace-nowrap uppercase tracking-wider mr-1">
+                    Tanya Cepat:
+                  </span>
+                  {quickQuestions.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSendQuickQuestion(q)}
+                      className="text-[11px] bg-[#FAFAF9] hover:bg-[#F8E9EB] hover:text-[#8F1D2C] text-[#242424] border border-[#E7E7E7] px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 cursor-pointer font-medium"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

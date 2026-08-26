@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useChat } from '../../context/ChatContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatRupiah, calculateDiscountPercentage } from '../../utils/currency';
 import { createWhatsAppUrl, generateDirectProductOrderMessage } from '../../utils/whatsapp';
 import { navigateTo } from '../../utils/router';
@@ -21,6 +23,8 @@ import { navigateTo } from '../../utils/router';
 export const QuickViewModal: React.FC = () => {
   const { quickViewProduct, setQuickViewProduct, addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { startOrGetConversation } = useChat();
+  const { requireAuth } = useAuth();
 
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
@@ -253,7 +257,10 @@ export const QuickViewModal: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setQuickViewProduct(null);
-                  navigateTo(`#/product/${product.slug}`);
+                  requireAuth(() => {
+                    startOrGetConversation(product);
+                    navigateTo('#/chat');
+                  });
                 }}
                 className="w-full flex items-center justify-center gap-1.5 bg-[#8F1D2C] hover:bg-[#64121D] text-white py-2.5 px-3 rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
                 id="quickview-chat-btn"
