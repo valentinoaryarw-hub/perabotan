@@ -125,7 +125,7 @@ export const ChatPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6">
+    <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-6 lg:px-8 xl:px-12 py-2 sm:py-6">
       {/* Top Bar Header */}
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E7E7E7] p-3 sm:p-4 mb-3 sm:mb-4 shadow-xs flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -153,31 +153,40 @@ export const ChatPage: React.FC = () => {
       </div>
 
       {/* Main Dual-Pane Chat Layout */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E7E7E7] shadow-xs overflow-hidden h-[calc(100dvh-200px)] min-h-[480px] max-h-[750px] flex">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E7E7E7] shadow-sm overflow-hidden h-[calc(100vh-180px)] min-h-[550px] max-h-[820px] flex flex-col md:flex-row">
         {/* LEFT PANE: CONVERSATION LIST */}
         <div
-          className={`w-full md:w-80 lg:w-96 border-r border-[#E7E7E7] flex flex-col shrink-0 bg-[#FAFAF9]/50 ${
+          className={`w-full md:w-80 lg:w-[360px] border-r border-[#E7E7E7] flex flex-col shrink-0 bg-[#FAFAF9]/60 ${
             !showMobileList ? 'hidden md:flex' : 'flex'
           }`}
         >
           {/* Conversation List Header */}
-          <div className="p-3 sm:p-4 border-b border-[#E7E7E7] flex items-center justify-between bg-white">
-            <h2 className="text-xs sm:text-sm font-bold text-[#242424]">
-              Daftar Obrolan ({conversations.length})
-            </h2>
+          <div className="p-3.5 sm:p-4 border-b border-[#E7E7E7] flex items-center justify-between bg-white shrink-0">
+            <div>
+              <h2 className="text-xs sm:text-sm font-bold text-[#242424]">
+                Daftar Obrolan
+              </h2>
+              <span className="text-[11px] text-[#667085]">
+                {conversations.length} percakapan aktif
+              </span>
+            </div>
             <a
               href="#/products"
-              className="text-[11px] font-semibold text-[#8F1D2C] hover:underline"
+              className="text-xs font-bold text-[#8F1D2C] hover:bg-[#F8E9EB] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
             >
-              + Cari Produk
+              <span>+ Katalog</span>
             </a>
           </div>
 
           {/* List items */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#E7E7E7]">
+          <div className="flex-1 overflow-y-auto divide-y divide-[#E7E7E7]/70">
             {conversations.length === 0 ? (
-              <div className="p-8 text-center text-xs text-[#667085]">
-                Belum ada obrolan. Silakan pilih produk di katalog lalu klik "Tanya Penjual".
+              <div className="p-8 text-center text-xs text-[#667085] flex flex-col items-center justify-center h-full">
+                <div className="w-12 h-12 rounded-2xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center mb-3">
+                  <MessageCircle className="w-6 h-6" />
+                </div>
+                <p className="font-semibold text-[#242424] mb-1">Belum ada obrolan</p>
+                <p className="text-[11px] max-w-[200px]">Pilih produk di katalog lalu klik tombol "Tanya Penjual".</p>
               </div>
             ) : (
               conversations.map((conv) => {
@@ -191,20 +200,20 @@ export const ChatPage: React.FC = () => {
                   <div
                     key={conv.id}
                     onClick={(e) => handleSelectConversation(conv.id, e)}
-                    className={`p-3.5 sm:p-4 cursor-pointer transition-all flex items-start gap-3 hover:bg-white ${
+                    className={`p-3.5 sm:p-4 cursor-pointer transition-all flex items-start gap-3 hover:bg-white relative ${
                       isSelected
                         ? 'bg-white border-l-4 border-[#8F1D2C] shadow-2xs'
                         : 'bg-transparent'
                     }`}
                   >
                     {/* User / Store Avatar */}
-                    <div className="relative shrink-0">
+                    <div className="relative shrink-0 mt-0.5">
                       {activeRole === 'seller' ? (
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FAFAF9] border border-[#E7E7E7] text-[#8F1D2C] flex items-center justify-center font-bold text-sm shadow-xs">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FAFAF9] border border-[#E7E7E7] text-[#8F1D2C] flex items-center justify-center font-bold text-sm shadow-2xs">
                           {conv.customerName ? conv.customerName.charAt(0).toUpperCase() : 'P'}
                         </div>
                       ) : (
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
                           BN
                         </div>
                       )}
@@ -217,11 +226,11 @@ export const ChatPage: React.FC = () => {
 
                     {/* Chat Item Details */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                      <div className="flex items-center justify-between gap-1 mb-1">
                         <h4 className="text-xs sm:text-sm font-bold text-[#242424] truncate">
                           {activeRole === 'seller' ? conv.customerName : 'Perabotan Bu Ngatmin'}
                         </h4>
-                        <span className="text-[10px] text-[#667085] shrink-0">
+                        <span className="text-[10px] text-[#667085] shrink-0 font-medium">
                           {new Date(conv.lastMessageTimestamp).toLocaleTimeString(
                             'id-ID',
                             { hour: '2-digit', minute: '2-digit' }
@@ -231,7 +240,7 @@ export const ChatPage: React.FC = () => {
 
                       {/* Product Tag */}
                       {conv.productSnapshot && (
-                        <div className="inline-flex items-center gap-1 text-[10px] text-[#8F1D2C] font-semibold bg-[#F8E9EB] px-1.5 py-0.5 rounded-md truncate max-w-full mb-1">
+                        <div className="inline-flex items-center gap-1 text-[10px] text-[#8F1D2C] font-semibold bg-[#F8E9EB] px-2 py-0.5 rounded-md truncate max-w-full mb-1">
                           <ShoppingBag className="w-2.5 h-2.5 shrink-0" />
                           <span className="truncate">{conv.productSnapshot.name}</span>
                         </div>
@@ -258,12 +267,12 @@ export const ChatPage: React.FC = () => {
         {/* RIGHT PANE: ACTIVE CONVERSATION */}
         {activeConversation ? (
           <div
-            className={`w-full flex-1 flex flex-col bg-[#FDFBF7]/30 ${
+            className={`w-full flex-1 flex flex-col bg-[#FAF8F5]/40 ${
               showMobileList ? 'hidden md:flex' : 'flex'
             }`}
           >
             {/* 1. TOP CHAT HEADER */}
-            <div className="p-3 sm:p-4 bg-white border-b border-[#E7E7E7] flex items-center justify-between gap-2 shadow-2xs">
+            <div className="p-3 sm:p-4 bg-white border-b border-[#E7E7E7] flex items-center justify-between gap-2 shadow-2xs shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Mobile Back to list button */}
                 <button
@@ -275,7 +284,7 @@ export const ChatPage: React.FC = () => {
                   <ChevronLeft className="w-5 h-5" />
                 </button>
 
-                <div className="w-9 h-9 rounded-xl bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 shadow-2xs">
                   {activeRole === 'seller' ? 'CS' : 'BN'}
                 </div>
 
@@ -286,8 +295,8 @@ export const ChatPage: React.FC = () => {
                       : 'Perabotan Bu Ngatmin'}
                   </h3>
                   <div className="flex items-center gap-1.5 text-[11px] text-[#2E7D5B]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D5B]"></span>
-                    <span>Online • Respon Cepat</span>
+                    <span className="w-2 h-2 rounded-full bg-[#2E7D5B] animate-pulse"></span>
+                    <span className="font-semibold">Online • Respon Cepat</span>
                   </div>
                 </div>
               </div>
@@ -296,10 +305,10 @@ export const ChatPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenDealModal}
-                className="px-3 py-1.5 bg-[#F8E9EB] hover:bg-[#8F1D2C] text-[#8F1D2C] hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                className="px-3 sm:px-4 py-2 bg-[#F8E9EB] hover:bg-[#8F1D2C] text-[#8F1D2C] hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer shrink-0"
                 title="Sepakati pesanan atau rekap nilai pembelian"
               >
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <CheckCircle2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Sepakati Pesanan</span>
                 <span className="sm:hidden">Sepakat</span>
               </button>
@@ -307,12 +316,12 @@ export const ChatPage: React.FC = () => {
 
             {/* 2. ATTACHED PRODUCT CONTEXT CARD */}
             {activeConversation.productSnapshot && (
-              <div className="bg-white border-b border-[#E7E7E7] px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xs">
+              <div className="bg-white border-b border-[#E7E7E7] px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xs shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
                   <img
                     src={activeConversation.productSnapshot.image}
                     alt={activeConversation.productSnapshot.name}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover border border-[#E7E7E7] bg-[#FAFAF9] shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-[#E7E7E7] bg-[#FAFAF9] shrink-0"
                   />
                   <div className="min-w-0">
                     <span className="text-[10px] text-[#667085] uppercase tracking-wider font-semibold">
@@ -321,7 +330,7 @@ export const ChatPage: React.FC = () => {
                     <h4 className="text-xs sm:text-sm font-bold text-[#242424] truncate">
                       {activeConversation.productSnapshot.name}
                     </h4>
-                    <div className="text-xs font-extrabold text-[#8F1D2C]">
+                    <div className="text-xs sm:text-sm font-extrabold text-[#8F1D2C]">
                       {formatRupiah(
                         activeConversation.productSnapshot.discountPrice ||
                           activeConversation.productSnapshot.price
@@ -346,11 +355,11 @@ export const ChatPage: React.FC = () => {
             {/* 3. MESSAGE THREAD CONTAINER (Self-scrolling internally) */}
             <div
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4"
+              className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-3 sm:space-y-4"
             >
               {/* Start info greeting */}
               <div className="text-center my-2">
-                <span className="inline-block bg-white border border-[#E7E7E7] text-[#667085] text-[11px] px-3 py-1 rounded-full shadow-2xs">
+                <span className="inline-block bg-white border border-[#E7E7E7] text-[#667085] text-[11px] px-3.5 py-1.5 rounded-full shadow-2xs">
                   💬 Obrolan langsung dengan Bu Ngatmin. Tanyakan stok perabotan, ukuran, diskon, atau buat rekap pesanan.
                 </span>
               </div>
@@ -367,7 +376,7 @@ export const ChatPage: React.FC = () => {
                       isMe ? 'items-end' : 'items-start'
                     }`}
                   >
-                    {/* Sender Name only (no username) */}
+                    {/* Sender Name only */}
                     <span className="text-[10px] text-[#667085] mb-1 px-1 font-medium">
                       {msg.senderRole === 'seller'
                         ? 'Perabotan Bu Ngatmin'
@@ -376,7 +385,7 @@ export const ChatPage: React.FC = () => {
 
                     {/* Message Bubble or Order Agreement Card */}
                     {msg.isOrderSummary && msg.orderSummaryDetails ? (
-                      <div className="max-w-xs sm:max-w-md bg-white border-2 border-[#8F1D2C] rounded-2xl p-3 sm:p-4 shadow-sm text-left space-y-2">
+                      <div className="max-w-xs sm:max-w-md bg-white border-2 border-[#8F1D2C] rounded-2xl p-3.5 sm:p-4 shadow-sm text-left space-y-2">
                         <div className="flex items-center gap-1.5 text-[#8F1D2C] font-bold text-xs">
                           <CheckCircle2 className="w-4 h-4 fill-[#8F1D2C] text-white" />
                           <span>KESEPAKATAN PESANAN DISETUJUI</span>
@@ -408,7 +417,7 @@ export const ChatPage: React.FC = () => {
                       </div>
                     ) : (
                       <div
-                        className={`max-w-xs sm:max-w-md px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${
+                        className={`max-w-xs sm:max-w-md px-4 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${
                           isMe
                             ? 'bg-[#8F1D2C] text-white rounded-br-xs'
                             : 'bg-white border border-[#E7E7E7] text-[#242424] rounded-bl-xs'
@@ -433,7 +442,7 @@ export const ChatPage: React.FC = () => {
 
             {/* 4. QUICK SUGGESTION CHIPS */}
             {activeRole === 'customer' && (
-              <div className="px-3 sm:px-4 py-2 bg-white border-t border-[#E7E7E7] overflow-x-auto no-scrollbar flex items-center gap-1.5">
+              <div className="px-3 sm:px-4 py-2 bg-white border-t border-[#E7E7E7] overflow-x-auto no-scrollbar flex items-center gap-1.5 shrink-0">
                 <span className="text-[10px] font-bold text-[#667085] whitespace-nowrap uppercase tracking-wider mr-1">
                   Tanya Cepat:
                 </span>
@@ -442,7 +451,7 @@ export const ChatPage: React.FC = () => {
                     key={idx}
                     type="button"
                     onClick={() => handleSendQuickQuestion(q)}
-                    className="text-[11px] bg-[#FAFAF9] hover:bg-[#F8E9EB] hover:text-[#8F1D2C] text-[#242424] border border-[#E7E7E7] px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 cursor-pointer"
+                    className="text-[11px] bg-[#FAFAF9] hover:bg-[#F8E9EB] hover:text-[#8F1D2C] text-[#242424] border border-[#E7E7E7] px-2.5 py-1 rounded-full whitespace-nowrap transition-colors shrink-0 cursor-pointer font-medium"
                   >
                     {q}
                   </button>
@@ -451,7 +460,7 @@ export const ChatPage: React.FC = () => {
             )}
 
             {/* 5. MESSAGE INPUT FORM */}
-            <div className="p-2.5 sm:p-4 bg-white border-t border-[#E7E7E7]">
+            <div className="p-3 sm:p-4 bg-white border-t border-[#E7E7E7] shrink-0">
               <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                 <input
                   type="text"
@@ -462,13 +471,13 @@ export const ChatPage: React.FC = () => {
                       ? 'Ketik pesan, tawar harga, atau tanya spesifikasi perabot...'
                       : 'Ketik balasan untuk pembeli...'
                   }
-                  className="flex-1 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm text-[#242424] placeholder-[#667085] focus:outline-hidden focus:border-[#8F1D2C] focus:bg-white transition-all shadow-2xs"
+                  className="flex-1 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-[#242424] placeholder-[#8C95A6] focus:outline-hidden focus:border-[#8F1D2C] focus:bg-white transition-all shadow-2xs"
                   id="chat-message-input"
                 />
                 <button
                   type="submit"
                   disabled={!inputMessage.trim()}
-                  className="h-10 sm:h-11 px-3.5 sm:px-5 bg-[#8F1D2C] hover:bg-[#64121D] disabled:opacity-50 text-white rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+                  className="h-10 sm:h-11 px-4 sm:px-6 bg-[#8F1D2C] hover:bg-[#64121D] disabled:opacity-50 text-white rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
                   id="chat-send-btn"
                 >
                   <span>Kirim</span>

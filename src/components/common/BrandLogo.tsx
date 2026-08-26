@@ -53,17 +53,14 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       {showText && (
         <div className="flex flex-col text-left">
           <div className="flex items-center gap-1">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-[#8F1D2C] leading-none">
+            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-[#8F1D2C] leading-none">
               PERABOTAN
             </span>
           </div>
           <span
-            className={`${dims.textSize} font-black tracking-tight text-[#242424] leading-tight font-serif sm:font-sans`}
+            className={`${dims.textSize} font-black tracking-tight text-[#242424] leading-tight font-serif sm:font-sans whitespace-nowrap`}
           >
             Bu <span className="text-[#8F1D2C]">Ngatmin</span>
-          </span>
-          <span className={`${dims.subSize} text-[#667085] hidden sm:block -mt-0.5 font-medium`}>
-            Pusat Perabot & Perlengkapan Rumah
           </span>
         </div>
       )}

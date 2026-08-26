@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-white border-t border-[#E7E7E7] text-[#242424] pt-12 pb-24 md:pb-12 mt-16">
       {/* Top Value Assurance Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 border-b border-[#E7E7E7]">
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-10 border-b border-[#E7E7E7]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex items-start gap-3.5">
             <div className="w-10 h-10 rounded-2xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center shrink-0">
@@ -70,7 +70,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Col 1: Brand & Tagline */}
           <div className="lg:col-span-2 space-y-4">
@@ -180,7 +180,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Copyright & Discreet Admin Access */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-[#E7E7E7] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#667085]">
+      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 border-t border-[#E7E7E7] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#667085]">
         <p>© 2026 {STORE_CONFIG.name}. Hak Cipta Dilindungi. Katalog Perabot Modern & Chat Langsung.</p>
         
         {/* Discreet Admin Panel Link at the very bottom */}

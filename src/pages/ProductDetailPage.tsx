@@ -120,7 +120,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
     .slice(0, 4);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-8">
+    <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-[#667085] overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
         <a href="#/" className="hover:text-[#8F1D2C]">Katalog</a>

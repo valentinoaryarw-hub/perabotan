@@ -19,7 +19,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onResetFilters,
   emptyTitle = 'Produk tidak ditemukan',
   emptySubtitle = 'Coba ubah kata kunci pencarian atau sesuaikan filter kategori Anda.',
-  columnsDesktop = 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6',
+  columnsDesktop = 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6',
 }) => {
   if (isLoading) {
     return (

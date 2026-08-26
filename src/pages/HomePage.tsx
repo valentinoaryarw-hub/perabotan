@@ -111,7 +111,7 @@ export const HomePage: React.FC = () => {
       : null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+    <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 space-y-6">
       {/* 1. COMPACT STORE INTRO & SEARCH BAR */}
       <div className="bg-white rounded-3xl border border-[#E7E7E7] p-5 sm:p-7 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">

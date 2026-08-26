@@ -71,7 +71,7 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+    <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-10 space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-[#667085]">
         <a href="#/" className="hover:text-[#8F1D2C]">Beranda</a>
