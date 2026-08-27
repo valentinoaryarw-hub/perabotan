@@ -17,7 +17,7 @@ export const AuthModal: React.FC = () => {
     try {
       const result = await loginWithGoogle();
       if (result) {
-        addToast(`Selamat Datang, ${result.name}!`, undefined, undefined, 'success');
+        addToast(`Welcome, ${result.name}`, undefined, undefined, 'success');
       }
     } catch (err: any) {
       console.error('Google Sign-In Error:', err);
@@ -28,10 +28,14 @@ export const AuthModal: React.FC = () => {
         setError(
           'Domain aplikasi ini belum didaftarkan di Authorized Domains Firebase Authentication. Silakan tambahkan domain ini pada Firebase Console.'
         );
-      } else if (code === 'auth/network-request-failed') {
-        setError('Koneksi internet bermasalah. Harap periksa jaringan Anda dan coba lagi.');
       } else if (code === 'auth/popup-closed-by-user') {
         setError('Jendela otentikasi Google ditutup sebelum proses masuk selesai.');
+      } else if (code === 'auth/cancelled-popup-request') {
+        setError('Permintaan masuk dengan Google dibatalkan.');
+      } else if (code === 'auth/popup-blocked') {
+        setError('Popup Google diblokir oleh browser. Sistem mengalihkan ke mode redirect Google OAuth.');
+      } else if (code === 'auth/network-request-failed') {
+        setError('Koneksi internet bermasalah. Harap periksa jaringan Anda dan coba lagi.');
       } else {
         setError(
           msg || 'Gagal terhubung dengan akun Google. Harap coba beberapa saat lagi.'
@@ -68,7 +72,7 @@ export const AuthModal: React.FC = () => {
             Masuk ke Toko Bu Ngatmin
           </h3>
           <p className="text-xs sm:text-sm text-[#667085] mt-1.5 leading-relaxed max-w-xs mx-auto">
-            Gunakan akun Google resmi Anda untuk mengelola troli belanja, wishlist, dan riwayat pesanan.
+            Gunakan akun Google resmi Anda untuk mengelola troli belanja, wishlist, konsultasi chat, dan riwayat pesanan.
           </p>
         </div>
 

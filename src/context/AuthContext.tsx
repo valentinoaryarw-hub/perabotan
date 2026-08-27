@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [pendingCallback, setPendingCallback] = useState<(() => void) | null>(null);
   const [activeRole, setActiveRoleState] = useState<'customer' | 'seller'>('customer');
 
-  // Cache user locally for seamless offline UX
+  // Cache user locally for seamless rendering while Firebase validates token
   useEffect(() => {
     try {
       if (user) {
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   /**
    * Official Google Sign-In using Firebase Authentication.
-   * Tries `signInWithPopup` first; if blocked by browser sandbox/iframe, falls back to `signInWithRedirect`.
+   * Tries `signInWithPopup` first; if blocked by browser sandbox/iframe, seamlessly falls back to `signInWithRedirect`.
    */
   const loginWithGoogle = async (): Promise<UserIdentity | void> => {
     try {
@@ -194,11 +194,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         console.warn('Popup authentication notice:', errorCode, errorMessage);
 
-        // If popup is blocked by browser, cross-origin/iframe sandbox, or cancelled, use redirect flow
+        // Explicit errors that should NOT trigger redirect
+        if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/cancelled-popup-request') {
+          throw popupError;
+        }
+
+        if (errorCode === 'auth/unauthorized-domain') {
+          throw popupError;
+        }
+
+        // If popup is blocked by browser, cross-origin/iframe sandbox, use redirect flow
         if (
           errorCode === 'auth/popup-blocked' ||
-          errorCode === 'auth/cancelled-popup-request' ||
-          errorCode === 'auth/popup-closed-by-user' ||
           errorMessage.includes('cross-origin') ||
           errorMessage.includes('sandbox') ||
           errorMessage.includes('iframe') ||
