@@ -1,5 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  ReactNode,
+  useRef,
+} from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import { CartItem, CustomerOrderData, Product } from '../types';
+import { useAuth } from './AuthContext';
 
 interface Toast {
   id: string;
@@ -17,7 +28,7 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
-  
+
   customerInfo: CustomerOrderData;
   setCustomerInfo: React.Dispatch<React.SetStateAction<CustomerOrderData>>;
   updateCustomerField: (field: keyof CustomerOrderData, value: string) => void;
@@ -32,10 +43,12 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'bungatmin_cart_items_v1';
-const CUSTOMER_STORAGE_KEY = 'bungatmin_customer_data_v1';
+const CART_STORAGE_KEY = 'bungatmin_cart_items_v2';
+const CUSTOMER_STORAGE_KEY = 'bungatmin_customer_data_v2';
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem(CART_STORAGE_KEY);
@@ -48,13 +61,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [customerInfo, setCustomerInfo] = useState<CustomerOrderData>(() => {
     try {
       const saved = localStorage.getItem(CUSTOMER_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : {
-        name: '',
-        phone: '',
-        city: '',
-        address: '',
-        notes: '',
-      };
+      return saved
+        ? JSON.parse(saved)
+        : {
+            name: '',
+            phone: '',
+            city: '',
+            address: '',
+            notes: '',
+          };
     } catch {
       return {
         name: '',
@@ -68,24 +83,101 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const isInitialLoadFromFirestore = useRef(false);
 
-  // Sync cart to localStorage
+  // Sync with Firestore whenever user logs in
+  useEffect(() => {
+    if (!user) return;
+
+    const loadUserCartFromFirestore = async () => {
+      try {
+        const cartDocRef = doc(db, 'users', user.id, 'cart', 'data');
+        const cartSnap = await getDoc(cartDocRef);
+
+        if (cartSnap.exists()) {
+          const data = cartSnap.data();
+          if (data.items) {
+            const parsedItems =
+              typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
+            if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+              setItems(parsedItems);
+            }
+          }
+          if (data.customerInfo) {
+            const parsedInfo =
+              typeof data.customerInfo === 'string'
+                ? JSON.parse(data.customerInfo)
+                : data.customerInfo;
+            if (parsedInfo && parsedInfo.name) {
+              setCustomerInfo(parsedInfo);
+            }
+          }
+        } else if (items.length > 0) {
+          // If user logs in with items in local cart, sync them to firestore
+          await setDoc(cartDocRef, {
+            userId: user.id,
+            items: JSON.stringify(items),
+            customerInfo: JSON.stringify({
+              ...customerInfo,
+              name: customerInfo.name || user.name,
+              phone: customerInfo.phone || user.phone || '',
+            }),
+            updatedAt: Date.now(),
+          });
+        }
+        isInitialLoadFromFirestore.current = true;
+      } catch (err) {
+        console.error('Failed loading cart from firestore', err);
+      }
+    };
+
+    loadUserCartFromFirestore();
+  }, [user?.id]);
+
+  // Sync cart to localStorage and Firestore
   useEffect(() => {
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
     } catch (e) {
       console.error('Failed saving cart to localStorage', e);
     }
-  }, [items]);
 
-  // Sync customerInfo to localStorage
+    if (user && isInitialLoadFromFirestore.current) {
+      const cartDocRef = doc(db, 'users', user.id, 'cart', 'data');
+      setDoc(
+        cartDocRef,
+        {
+          userId: user.id,
+          items: JSON.stringify(items),
+          customerInfo: JSON.stringify(customerInfo),
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      ).catch((err) => console.warn('Firestore cart update fallback:', err));
+    }
+  }, [items, user?.id]);
+
+  // Sync customerInfo to localStorage and Firestore
   useEffect(() => {
     try {
       localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customerInfo));
     } catch (e) {
       console.error('Failed saving customer info to localStorage', e);
     }
-  }, [customerInfo]);
+
+    if (user && isInitialLoadFromFirestore.current) {
+      const cartDocRef = doc(db, 'users', user.id, 'cart', 'data');
+      setDoc(
+        cartDocRef,
+        {
+          userId: user.id,
+          customerInfo: JSON.stringify(customerInfo),
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      ).catch((err) => console.warn('Firestore info update fallback:', err));
+    }
+  }, [customerInfo, user?.id]);
 
   const addToast = (message: string, actionLabel?: string, onAction?: () => void) => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -108,7 +200,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }));
   };
 
-  const calculateItemUnitPrice = (product: Product, selectedVariants: Record<string, string>): number => {
+  const calculateItemUnitPrice = (
+    product: Product,
+    selectedVariants: Record<string, string>
+  ): number => {
     let price = product.discountPrice || product.price;
     if (product.variants) {
       product.variants.forEach((v) => {
@@ -121,9 +216,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return price;
   };
 
-  const addItem = (product: Product, quantity = 1, selectedVariants: Record<string, string> = {}) => {
+  const addItem = (
+    product: Product,
+    quantity = 1,
+    selectedVariants: Record<string, string> = {}
+  ) => {
     const unitPrice = calculateItemUnitPrice(product, selectedVariants);
-    const sortedVariantKey = Object.keys(selectedVariants).sort().map(k => `${k}:${selectedVariants[k]}`).join('|');
+    const sortedVariantKey = Object.keys(selectedVariants)
+      .sort()
+      .map((k) => `${k}:${selectedVariants[k]}`)
+      .join('|');
     const itemId = `${product.id}-${sortedVariantKey}`;
 
     setItems((prev) => {

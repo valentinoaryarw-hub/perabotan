@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Star,
   MessageCircle,
@@ -13,6 +13,7 @@ import {
   Plus,
   Minus,
   Check,
+  User,
 } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -32,7 +33,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
   const product = products.find((p) => p.slug === slug);
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addItem } = useCart();
-  const { requireAuth } = useAuth();
+  const { user, requireAuth, openAuthModal, isLoadingAuth } = useAuth();
   const { startOrGetConversation } = useChat();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -40,6 +41,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
   const [quantity, setQuantity] = useState(1);
   const [copiedToast, setCopiedToast] = useState(false);
   const [addedToCartToast, setAddedToCartToast] = useState(false);
+
+  useEffect(() => {
+    if (!user && !isLoadingAuth) {
+      openAuthModal();
+    }
+  }, [user, isLoadingAuth]);
 
   if (!product) {
     return (
@@ -88,9 +95,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
   );
 
   const handleAddToCart = () => {
-    addItem(product, quantity, currentVariants);
-    setAddedToCartToast(true);
-    setTimeout(() => setAddedToCartToast(false), 2000);
+    requireAuth(() => {
+      addItem(product, quantity, currentVariants);
+      setAddedToCartToast(true);
+      setTimeout(() => setAddedToCartToast(false), 2000);
+    });
+  };
+
+  const handleToggleWish = () => {
+    requireAuth(() => {
+      toggleWishlist(product.id);
+    });
   };
 
   const handleStartChat = (initialCustomMessage?: string) => {
@@ -162,7 +177,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
                 </button>
                 <button
                   type="button"
-                  onClick={() => toggleWishlist(product.id)}
+                  onClick={handleToggleWish}
                   className="p-2.5 bg-white/90 hover:bg-white text-[#242424] rounded-full shadow-md transition-all hover:scale-105"
                   title="Simpan ke Favorit"
                 >

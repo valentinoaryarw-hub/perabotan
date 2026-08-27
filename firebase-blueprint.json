@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile identity and account metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "seller"] },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "name", "role"]
+    },
+    "UserCart": {
+      "title": "UserCart",
+      "description": "Saved user shopping cart items and customer address info",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { "type": "string" },
+        "customerInfo": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["userId"]
+    },
+    "UserWishlist": {
+      "title": "UserWishlist",
+      "description": "Saved user wishlist product IDs",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "productIds": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["userId"]
+    },
+    "ChatConversation": {
+      "title": "ChatConversation",
+      "description": "Chat discussion room between a customer and seller",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerAvatar": { "type": "string" },
+        "productId": { "type": "string" },
+        "productSnapshot": { "type": "string" },
+        "messages": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "lastMessageTimestamp": { "type": "number" },
+        "unreadBySeller": { "type": "number" },
+        "unreadByCustomer": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "negotiating", "deal_agreed", "completed"] }
+      },
+      "required": ["id", "customerId", "customerName", "lastMessageTimestamp", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order details and status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "items": { "type": "string" },
+        "totalPrice": { "type": "number" },
+        "customerInfo": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "shipped", "completed", "cancelled"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "userId", "totalPrice", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile data"
+    },
+    "/users/{userId}/cart/data": {
+      "schema": "UserCart",
+      "description": "User cart items and address data"
+    },
+    "/users/{userId}/wishlist/data": {
+      "schema": "UserWishlist",
+      "description": "User saved wishlist items"
+    },
+    "/conversations/{conversationId}": {
+      "schema": "ChatConversation",
+      "description": "Discussion and chat conversations with seller"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders"
+    }
+  }
+}

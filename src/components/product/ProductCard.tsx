@@ -56,6 +56,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
 
+  const handleCardClick = () => {
+    requireAuth(() => {
+      navigateTo(`#/product/${product.slug}`);
+    });
+  };
+
   const handleQuickChat = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -68,20 +74,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    addItem(product, 1);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1800);
+    requireAuth(() => {
+      addItem(product, 1);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1800);
+    });
   };
 
   const handleToggleWish = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    toggleWishlist(product.id);
+    requireAuth(() => {
+      toggleWishlist(product.id);
+    });
   };
 
   return (
     <div
-      onClick={() => navigateTo(`#/product/${product.slug}`)}
+      onClick={handleCardClick}
       className={`group relative bg-white rounded-xl sm:rounded-2xl border border-[#E7E7E7] overflow-hidden hover:border-[#8F1D2C]/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer ${className}`}
       id={`product-card-${product.slug}`}
     >

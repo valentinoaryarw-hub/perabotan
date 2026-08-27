@@ -34,7 +34,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) => {
-  const { user, openAuthModal, activeRole, setActiveRole } = useAuth();
+  const { user, openAuthModal, requireAuth, activeRole, setActiveRole } = useAuth();
   const { unreadCountForCustomer, unreadCountForSeller } = useChat();
   const { products } = useProducts();
   const { wishlistIds } = useWishlist();
@@ -306,11 +306,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                 {searchSuggestions.length > 0 ? (
                   <div className="space-y-1 mt-1">
                     {searchSuggestions.map((prod) => (
-                      <a
+                      <button
                         key={prod.id}
-                        href={`#/product/${prod.slug}`}
-                        onClick={() => setIsSearchFocused(false)}
-                        className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#F8E9EB]/60 transition-colors group"
+                        type="button"
+                        onClick={() => {
+                          setIsSearchFocused(false);
+                          requireAuth(() => {
+                            navigateTo(`#/product/${prod.slug}`);
+                          });
+                        }}
+                        className="w-full text-left flex items-center gap-3 p-2 rounded-xl hover:bg-[#F8E9EB]/60 transition-colors group cursor-pointer"
                       >
                         <img
                           src={prod.images[0]}
@@ -331,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                           </div>
                         </div>
                         <ArrowRight className="w-3.5 h-3.5 text-[#667085] group-hover:text-[#8F1D2C] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
+                      </button>
                     ))}
                     <button
                       type="button"
@@ -407,13 +412,25 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-[#FAFAF9] text-[#242424] hover:text-[#8F1D2C] border border-[#E7E7E7] transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-[#FAFAF9] text-[#242424] hover:text-[#8F1D2C] border border-[#E7E7E7] transition-all cursor-pointer"
                   title="Profil & Pengaturan Akun"
                   id="header-user-profile-btn"
                 >
-                  <div className="w-7 h-7 rounded-full bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
+                  {user.avatar && (user.avatar.startsWith('http') && !user.avatar.includes('dicebear')) ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      referrerPolicy="no-referrer"
+                      className="w-7 h-7 rounded-full object-cover border border-[#8F1D2C]/30 shadow-2xs"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-[#8F1D2C] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-xs font-bold text-[#242424] max-w-[100px] truncate hidden md:inline">
+                    {user.name}
+                  </span>
                   <ChevronDown className="w-3.5 h-3.5 text-[#667085] hidden sm:block" />
                 </button>
               ) : (
@@ -421,7 +438,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                   type="button"
                   onClick={() => openAuthModal()}
                   className="p-2.5 sm:px-3 sm:py-2 text-[#242424] hover:text-[#8F1D2C] hover:bg-[#FAFAF9] border border-[#E7E7E7] rounded-xl font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
-                  title="Masuk / Daftar Akun"
+                  title="Masuk dengan Akun Google"
                   id="header-login-btn"
                 >
                   <User className="w-4 h-4 text-[#3E4756]" />
