@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { X, User, Loader2, Mail, Edit3 } from 'lucide-react';
+import { X, User, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const AuthModal: React.FC = () => {
   const { isAuthModalOpen, closeAuthModal, loginWithGoogle, isLoadingAuth } = useAuth();
   const [error, setError] = useState('');
   const [isSubmittingGoogle, setIsSubmittingGoogle] = useState(false);
-  const [showCustomEmail, setShowCustomEmail] = useState(false);
-  const [customName, setCustomName] = useState('');
-  const [customEmail, setCustomEmail] = useState('');
 
   if (!isAuthModalOpen) return null;
 
@@ -16,32 +13,20 @@ export const AuthModal: React.FC = () => {
     setError('');
     setIsSubmittingGoogle(true);
     try {
-      if (showCustomEmail) {
-        if (!customName.trim()) {
-          setError('Silakan masukkan nama lengkap Anda.');
-          setIsSubmittingGoogle(false);
-          return;
-        }
-        if (!customEmail.trim() || !customEmail.includes('@')) {
-          setError('Silakan masukkan alamat email yang valid.');
-          setIsSubmittingGoogle(false);
-          return;
-        }
-        await loginWithGoogle(customEmail.trim(), customName.trim());
-      } else {
-        await loginWithGoogle();
-      }
+      await loginWithGoogle();
       closeAuthModal();
     } catch (err: any) {
-      console.warn('Google login failed or popup blocked:', err);
+      console.error('Google Auth Popup Error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
-        setError('Jendela masuk Google ditutup.');
+        setError('Jendela masuk Google ditutup sebelum selesai.');
       } else if (err.code === 'auth/popup-blocked') {
-        setError('Popup Google diblokir oleh browser. Silakan masukkan nama & email di bawah.');
-        setShowCustomEmail(true);
+        setError('Jendela popup diblokir oleh browser. Harap izinkan popup di browser Anda atau buka situs di tab baru.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Permintaan login dibatalkan.');
+      } else if (err.message && err.message.includes('cross-origin')) {
+        setError('Otentikasi Google terhalang oleh pembatasan iframe. Silakan buka aplikasi di tab baru agar popup Google dapat terbuka.');
       } else {
-        setError('Popup otentikasi Google terhalang sandbox/browser. Masukkan nama & email Anda di bawah untuk langsung masuk.');
-        setShowCustomEmail(true);
+        setError('Gagal masuk dengan Google. Pastikan koneksi internet stabil dan izinkan popup.');
       }
     } finally {
       setIsSubmittingGoogle(false);
@@ -51,7 +36,7 @@ export const AuthModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
       <div
-        className="relative w-full max-w-sm bg-white rounded-3xl border border-[#E7E7E7] shadow-2xl p-6 sm:p-7 overflow-hidden animate-in zoom-in-95"
+        className="relative w-full max-w-sm bg-white rounded-3xl border border-[#E7E7E7] shadow-2xl p-6 sm:p-8 overflow-hidden animate-in zoom-in-95"
         id="auth-identity-modal"
       >
         {/* Close Button */}
@@ -66,56 +51,28 @@ export const AuthModal: React.FC = () => {
 
         {/* Header Content */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center mx-auto mb-3 shadow-xs font-bold">
-            <User className="w-6 h-6" />
+          <div className="w-14 h-14 rounded-2xl bg-[#F8E9EB] text-[#8F1D2C] flex items-center justify-center mx-auto mb-3.5 shadow-xs font-bold">
+            <User className="w-7 h-7" />
           </div>
           <h3 className="text-xl font-bold text-[#242424] tracking-tight">
-            Masuk ke Toko Bu Ngatmin
+            Masuk Akun Google
           </h3>
-          <p className="text-xs sm:text-sm text-[#667085] mt-1 max-w-xs mx-auto">
-            Silakan masuk dengan akun Google Anda untuk melihat detail produk, belanja, dan berdiskusi dengan penjual.
+          <p className="text-xs sm:text-sm text-[#667085] mt-1.5 leading-relaxed max-w-xs mx-auto">
+            Masuk dengan akun Google Anda untuk mengelola keranjang, wishlist, dan riwayat chat secara otomatis.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs text-center font-medium border border-red-200">
-            {error}
-          </div>
-        )}
-
-        {/* Custom Email Form (Drawer) */}
-        {showCustomEmail && (
-          <div className="mb-4 p-3.5 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl space-y-2.5 animate-in fade-in">
-            <div>
-              <label className="block text-[11px] font-bold text-[#667085] mb-1">
-                Nama Lengkap Anda
-              </label>
-              <input
-                type="text"
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-                placeholder="Contoh: Budi Santoso"
-                className="w-full px-3 py-2 text-xs border border-[#E7E7E7] rounded-xl focus:border-[#8F1D2C] focus:outline-none bg-white"
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold text-[#667085] mb-1">
-                Email Google Anda
-              </label>
-              <input
-                type="email"
-                value={customEmail}
-                onChange={(e) => setCustomEmail(e.target.value)}
-                placeholder="Contoh: budi@gmail.com"
-                className="w-full px-3 py-2 text-xs border border-[#E7E7E7] rounded-xl focus:border-[#8F1D2C] focus:outline-none bg-white"
-              />
+          <div className="mb-5 p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs flex items-start gap-2.5 border border-red-200 text-left">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="flex-1 leading-snug font-medium">
+              {error}
             </div>
           </div>
         )}
 
         {/* Primary Google Login Button */}
-        <div>
+        <div className="space-y-3">
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -145,29 +102,15 @@ export const AuthModal: React.FC = () => {
                 />
               </svg>
             )}
-            <span>
-              {showCustomEmail ? 'Masuk dengan Akun Ini' : 'Lanjutkan dengan Akun Google'}
-            </span>
+            <span>Lanjutkan dengan Akun Google</span>
           </button>
         </div>
 
-        {/* Option to customize account details if needed */}
-        <div className="mt-3 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setShowCustomEmail(!showCustomEmail);
-              setError('');
-            }}
-            className="text-[11px] text-[#667085] hover:text-[#8F1D2C] font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
-          >
-            <Edit3 className="w-3 h-3" />
-            <span>
-              {showCustomEmail
-                ? 'Gunakan Jendela Masuk Google (Popup)'
-                : 'Atau masukkan Nama & Email Google secara langsung'}
-            </span>
-          </button>
+        {/* Security & Privacy footer */}
+        <div className="mt-5 text-center">
+          <p className="text-[11px] text-[#667085] leading-relaxed">
+            Data profil, troli, dan riwayat pesanan Anda otomatis tersimpan aman di database toko tertaut dengan akun Google Anda.
+          </p>
         </div>
       </div>
     </div>

@@ -4,10 +4,9 @@ import {
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
-  signInAnonymously,
-  updateProfile as updateFirebaseProfile,
+  GoogleAuthProvider,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../config/firebase';
 import { UserIdentity } from '../types';
 
@@ -18,8 +17,7 @@ interface AuthContextType {
   isAuthModalOpen: boolean;
   openAuthModal: (onSuccess?: () => void) => void;
   closeAuthModal: () => void;
-  loginWithGoogle: (customEmail?: string, customName?: string) => Promise<UserIdentity | null>;
-  loginWithName: (name: string, phone?: string) => Promise<UserIdentity>;
+  loginWithGoogle: () => Promise<UserIdentity>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<UserIdentity>) => Promise<void>;
   requireAuth: (action: () => void) => void;
@@ -29,7 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY_USER = 'bungatmin_user_identity_v2';
+const STORAGE_KEY_USER = 'bungatmin_user_identity_v3';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserIdentity | null>(() => {
@@ -75,36 +73,60 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const userDocRef = doc(db, 'users', fbUser.uid);
           const userDoc = await getDoc(userDocRef);
 
+          let identity: UserIdentity;
+
           if (userDoc.exists()) {
             const data = userDoc.data();
-            const identity: UserIdentity = {
+            identity = {
               id: fbUser.uid,
-              name: data.name || fbUser.displayName || 'Pelanggan Toko',
+              name: data.name || fbUser.displayName || 'Pengguna Google',
               email: data.email || fbUser.email || undefined,
               phone: data.phone || undefined,
               avatar:
                 data.avatar ||
                 fbUser.photoURL ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  data.name || fbUser.displayName || 'Pelanggan'
+                  fbUser.displayName || 'Google User'
                 )}&background=8F1D2C&color=fff&bold=true`,
               role: data.role || 'customer',
               createdAt: data.createdAt || Date.now(),
             };
-            setUser(identity);
           } else {
-            // Check stored user from localStorage
-            const stored = localStorage.getItem(STORAGE_KEY_USER);
-            if (stored) {
-              const parsed = JSON.parse(stored);
-              if (parsed && parsed.id) {
-                setUser(parsed);
-              }
-            }
+            // New user registration in Firestore
+            identity = {
+              id: fbUser.uid,
+              name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Pengguna Google',
+              email: fbUser.email || undefined,
+              avatar:
+                fbUser.photoURL ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  fbUser.displayName || 'Google User'
+                )}&background=8F1D2C&color=fff&bold=true`,
+              role: 'customer',
+              createdAt: Date.now(),
+            };
+
+            await setDoc(
+              userDocRef,
+              {
+                id: fbUser.uid,
+                name: identity.name,
+                email: identity.email || null,
+                avatar: identity.avatar,
+                role: 'customer',
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+              },
+              { merge: true }
+            );
           }
+
+          setUser(identity);
         } catch (err) {
           console.error('Failed fetching user profile from Firestore', err);
         }
+      } else {
+        setUser(null);
       }
       setIsLoadingAuth(false);
     });
@@ -116,62 +138,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setActiveRoleState(role);
   };
 
-  const loginWithGoogle = async (
-    customEmail?: string,
-    customName?: string
-  ): Promise<UserIdentity | null> => {
+  /**
+   * Real Google OAuth Login
+   * Authenticates the user's authentic Google Account via Firebase Auth
+   * and registers/synchronizes their profile into Cloud Firestore
+   */
+  const loginWithGoogle = async (): Promise<UserIdentity> => {
     try {
       setIsLoadingAuth(true);
 
-      let fbUser: FirebaseUser | null = null;
-      let displayName = customName?.trim() || '';
-      let email = customEmail?.trim() || '';
-      let photoURL = '';
+      // Trigger standard Google OAuth Popup
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
 
-      if (!customEmail && !customName) {
-        // Attempt standard Google OAuth Popup
-        const result = await signInWithPopup(auth, googleProvider);
-        fbUser = result.user;
-        displayName = fbUser.displayName || fbUser.email?.split('@')[0] || 'Pelanggan Google';
-        email = fbUser.email || '';
-        photoURL = fbUser.photoURL || '';
-      } else {
-        // Custom Google identity provided by user
-        try {
-          if (!auth.currentUser) {
-            const anonRes = await signInAnonymously(auth);
-            fbUser = anonRes.user;
-          } else {
-            fbUser = auth.currentUser;
-          }
-        } catch (anonErr) {
-          console.warn('Anonymous auth fallback error', anonErr);
-        }
+      const uid = fbUser.uid;
+      const displayName = fbUser.displayName || fbUser.email?.split('@')[0] || 'Pengguna Google';
+      const email = fbUser.email || '';
+      const photoURL =
+        fbUser.photoURL ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=8F1D2C&color=fff&bold=true`;
 
-        displayName = customName?.trim() || (customEmail ? customEmail.split('@')[0] : 'Pelanggan Google');
-        email = customEmail?.trim() || '';
-      }
-
-      const uid = fbUser?.uid || 'usr-google-' + Date.now().toString(36);
-
-      if (!photoURL) {
-        photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          displayName
-        )}&background=8F1D2C&color=fff&bold=true`;
-      }
-
-      if (fbUser) {
-        try {
-          await updateFirebaseProfile(fbUser, {
-            displayName,
-            photoURL,
-          });
-        } catch (pErr) {
-          console.warn('Could not update Firebase profile details:', pErr);
-        }
-      }
-
-      // Check and save to Firestore
+      // Sync and retrieve from Cloud Firestore
       const userDocRef = doc(db, 'users', uid);
       let existingPhone: string | undefined;
 
@@ -179,13 +166,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const docData = userDoc.data();
-          if (docData.name && !customName) displayName = docData.name;
-          if (docData.email && !customEmail) email = docData.email;
           if (docData.phone) existingPhone = docData.phone;
-          if (docData.avatar) photoURL = docData.avatar;
         }
       } catch (docReadErr) {
-        console.warn('Firestore doc read fallback', docReadErr);
+        console.warn('Firestore doc read error', docReadErr);
       }
 
       const identity: UserIdentity = {
@@ -198,22 +182,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         createdAt: Date.now(),
       };
 
-      try {
-        await setDoc(
-          userDocRef,
-          {
-            id: uid,
-            name: identity.name,
-            email: identity.email || null,
-            avatar: identity.avatar,
-            role: 'customer',
-            updatedAt: Date.now(),
-          },
-          { merge: true }
-        );
-      } catch (docWriteErr) {
-        console.warn('Firestore user write fallback', docWriteErr);
-      }
+      // Persist real customer profile in Firestore
+      await setDoc(
+        userDocRef,
+        {
+          id: uid,
+          name: identity.name,
+          email: identity.email || null,
+          avatar: identity.avatar,
+          role: 'customer',
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      );
 
       setUser(identity);
       setIsAuthModalOpen(false);
@@ -225,58 +206,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       return identity;
     } catch (error: any) {
-      console.error('Google Sign-In Execution Error:', error);
+      console.error('Google Sign-In Error:', error);
       throw error;
     } finally {
       setIsLoadingAuth(false);
     }
-  };
-
-  const loginWithName = async (nameInput: string, phoneInput?: string): Promise<UserIdentity> => {
-    const cleanName = nameInput.trim();
-    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      cleanName
-    )}&background=8F1D2C&color=fff&bold=true`;
-
-    let userId = 'usr-google-' + Date.now().toString(36);
-
-    try {
-      if (!auth.currentUser) {
-        const anonRes = await signInAnonymously(auth);
-        userId = anonRes.user.uid;
-        await updateFirebaseProfile(anonRes.user, { displayName: cleanName });
-      } else {
-        userId = auth.currentUser.uid;
-      }
-    } catch (e) {
-      console.warn('Firebase auth fallback', e);
-    }
-
-    const newUser: UserIdentity = {
-      id: userId,
-      name: cleanName,
-      phone: phoneInput?.trim() || undefined,
-      avatar: avatar,
-      role: 'customer',
-      createdAt: Date.now(),
-    };
-
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      await setDoc(userDocRef, { ...newUser, updatedAt: Date.now() }, { merge: true });
-    } catch (err) {
-      console.error('Error saving user to firestore', err);
-    }
-
-    setUser(newUser);
-    setIsAuthModalOpen(false);
-
-    if (pendingCallback) {
-      pendingCallback();
-      setPendingCallback(null);
-    }
-
-    return newUser;
   };
 
   const updateProfile = async (data: Partial<UserIdentity>) => {
@@ -334,7 +268,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         openAuthModal,
         closeAuthModal,
         loginWithGoogle,
-        loginWithName,
         logout,
         updateProfile,
         requireAuth,
