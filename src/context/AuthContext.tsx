@@ -79,14 +79,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const data = userDoc.data();
             const identity: UserIdentity = {
               id: fbUser.uid,
-              name: data.name || fbUser.displayName || 'Valentino Arya',
-              email: data.email || fbUser.email || 'valentinoaryarw@gmail.com',
+              name: data.name || fbUser.displayName || 'Pelanggan Toko',
+              email: data.email || fbUser.email || undefined,
               phone: data.phone || undefined,
               avatar:
                 data.avatar ||
                 fbUser.photoURL ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  data.name || fbUser.displayName || 'Valentino Arya'
+                  data.name || fbUser.displayName || 'Pelanggan'
                 )}&background=8F1D2C&color=fff&bold=true`,
               role: data.role || 'customer',
               createdAt: data.createdAt || Date.now(),
@@ -128,20 +128,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let email = customEmail?.trim() || '';
       let photoURL = '';
 
-      // Step 1: Attempt standard Firebase Google Popup
-      try {
+      if (!customEmail && !customName) {
+        // Attempt standard Google OAuth Popup
         const result = await signInWithPopup(auth, googleProvider);
         fbUser = result.user;
-        displayName = fbUser.displayName || displayName || 'Valentino Arya';
-        email = fbUser.email || email || 'valentinoaryarw@gmail.com';
+        displayName = fbUser.displayName || fbUser.email?.split('@')[0] || 'Pelanggan Google';
+        email = fbUser.email || '';
         photoURL = fbUser.photoURL || '';
-      } catch (popupError: any) {
-        console.warn(
-          'Firebase Google Popup unavailable in sandboxed environment, initiating seamless Firebase authenticated session:',
-          popupError?.message || popupError
-        );
-
-        // Step 2: Resilient fallback to Firebase Auth session
+      } else {
+        // Custom Google identity provided by user
         try {
           if (!auth.currentUser) {
             const anonRes = await signInAnonymously(auth);
@@ -153,8 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.warn('Anonymous auth fallback error', anonErr);
         }
 
-        displayName = displayName || 'Valentino Arya';
-        email = email || 'valentinoaryarw@gmail.com';
+        displayName = customName?.trim() || (customEmail ? customEmail.split('@')[0] : 'Pelanggan Google');
+        email = customEmail?.trim() || '';
       }
 
       const uid = fbUser?.uid || 'usr-google-' + Date.now().toString(36);
@@ -176,7 +171,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Step 3: Check and save to Firestore
+      // Check and save to Firestore
       const userDocRef = doc(db, 'users', uid);
       let existingPhone: string | undefined;
 
@@ -196,7 +191,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const identity: UserIdentity = {
         id: uid,
         name: displayName,
-        email: email,
+        email: email || undefined,
         phone: existingPhone,
         avatar: photoURL,
         role: 'customer',
@@ -231,24 +226,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return identity;
     } catch (error: any) {
       console.error('Google Sign-In Execution Error:', error);
-      // Final fallback to ensure user is never locked out
-      const fallbackIdentity: UserIdentity = {
-        id: 'usr-google-' + Date.now().toString(36),
-        name: customName || 'Valentino Arya',
-        email: customEmail || 'valentinoaryarw@gmail.com',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          customName || 'Valentino Arya'
-        )}&background=8F1D2C&color=fff&bold=true`,
-        role: 'customer',
-        createdAt: Date.now(),
-      };
-      setUser(fallbackIdentity);
-      setIsAuthModalOpen(false);
-      if (pendingCallback) {
-        pendingCallback();
-        setPendingCallback(null);
-      }
-      return fallbackIdentity;
+      throw error;
     } finally {
       setIsLoadingAuth(false);
     }

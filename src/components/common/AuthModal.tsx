@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Loader2, Mail, Edit3, ChevronRight } from 'lucide-react';
+import { X, User, Loader2, Mail, Edit3 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const AuthModal: React.FC = () => {
@@ -7,8 +7,8 @@ export const AuthModal: React.FC = () => {
   const [error, setError] = useState('');
   const [isSubmittingGoogle, setIsSubmittingGoogle] = useState(false);
   const [showCustomEmail, setShowCustomEmail] = useState(false);
-  const [customName, setCustomName] = useState('Valentino Arya');
-  const [customEmail, setCustomEmail] = useState('valentinoaryarw@gmail.com');
+  const [customName, setCustomName] = useState('');
+  const [customEmail, setCustomEmail] = useState('');
 
   if (!isAuthModalOpen) return null;
 
@@ -17,14 +17,32 @@ export const AuthModal: React.FC = () => {
     setIsSubmittingGoogle(true);
     try {
       if (showCustomEmail) {
-        await loginWithGoogle(customEmail, customName);
+        if (!customName.trim()) {
+          setError('Silakan masukkan nama lengkap Anda.');
+          setIsSubmittingGoogle(false);
+          return;
+        }
+        if (!customEmail.trim() || !customEmail.includes('@')) {
+          setError('Silakan masukkan alamat email yang valid.');
+          setIsSubmittingGoogle(false);
+          return;
+        }
+        await loginWithGoogle(customEmail.trim(), customName.trim());
       } else {
         await loginWithGoogle();
       }
       closeAuthModal();
     } catch (err: any) {
-      console.error(err);
-      setError('Terjadi kendala saat menghubungkan akun. Silakan coba lagi.');
+      console.warn('Google login failed or popup blocked:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Jendela masuk Google ditutup.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup Google diblokir oleh browser. Silakan masukkan nama & email di bawah.');
+        setShowCustomEmail(true);
+      } else {
+        setError('Popup otentikasi Google terhalang sandbox/browser. Masukkan nama & email Anda di bawah untuk langsung masuk.');
+        setShowCustomEmail(true);
+      }
     } finally {
       setIsSubmittingGoogle(false);
     }
@@ -55,7 +73,7 @@ export const AuthModal: React.FC = () => {
             Masuk ke Toko Bu Ngatmin
           </h3>
           <p className="text-xs sm:text-sm text-[#667085] mt-1 max-w-xs mx-auto">
-            Silakan masuk untuk melihat detail produk, belanja, dan berdiskusi dengan penjual.
+            Silakan masuk dengan akun Google Anda untuk melihat detail produk, belanja, dan berdiskusi dengan penjual.
           </p>
         </div>
 
@@ -65,30 +83,31 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
-        {/* Custom Email Form (Optional Drawer) */}
+        {/* Custom Email Form (Drawer) */}
         {showCustomEmail && (
-          <div className="mb-4 p-3 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl space-y-2.5 animate-in fade-in">
+          <div className="mb-4 p-3.5 bg-[#FAFAF9] border border-[#E7E7E7] rounded-2xl space-y-2.5 animate-in fade-in">
             <div>
               <label className="block text-[11px] font-bold text-[#667085] mb-1">
-                Nama Lengkap
+                Nama Lengkap Anda
               </label>
               <input
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                placeholder="Nama Anda"
+                placeholder="Contoh: Budi Santoso"
                 className="w-full px-3 py-2 text-xs border border-[#E7E7E7] rounded-xl focus:border-[#8F1D2C] focus:outline-none bg-white"
+                autoFocus
               />
             </div>
             <div>
               <label className="block text-[11px] font-bold text-[#667085] mb-1">
-                Email Google
+                Email Google Anda
               </label>
               <input
                 type="email"
                 value={customEmail}
                 onChange={(e) => setCustomEmail(e.target.value)}
-                placeholder="email@gmail.com"
+                placeholder="Contoh: budi@gmail.com"
                 className="w-full px-3 py-2 text-xs border border-[#E7E7E7] rounded-xl focus:border-[#8F1D2C] focus:outline-none bg-white"
               />
             </div>
@@ -126,7 +145,9 @@ export const AuthModal: React.FC = () => {
                 />
               </svg>
             )}
-            <span>Lanjutkan dengan Akun Google</span>
+            <span>
+              {showCustomEmail ? 'Masuk dengan Akun Ini' : 'Lanjutkan dengan Akun Google'}
+            </span>
           </button>
         </div>
 
@@ -134,11 +155,18 @@ export const AuthModal: React.FC = () => {
         <div className="mt-3 text-center">
           <button
             type="button"
-            onClick={() => setShowCustomEmail(!showCustomEmail)}
+            onClick={() => {
+              setShowCustomEmail(!showCustomEmail);
+              setError('');
+            }}
             className="text-[11px] text-[#667085] hover:text-[#8F1D2C] font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
           >
             <Edit3 className="w-3 h-3" />
-            <span>{showCustomEmail ? 'Gunakan Akun Default' : 'Ganti Nama / Email Google'}</span>
+            <span>
+              {showCustomEmail
+                ? 'Gunakan Jendela Masuk Google (Popup)'
+                : 'Atau masukkan Nama & Email Google secara langsung'}
+            </span>
           </button>
         </div>
       </div>
