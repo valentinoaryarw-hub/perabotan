@@ -27,6 +27,7 @@ import { BrandLogo } from './BrandLogo';
 import { CATEGORIES } from '../../data/categories';
 import { formatRupiah } from '../../utils/currency';
 import { navigateTo } from '../../utils/router';
+import { OptimizedImage } from './OptimizedImage';
 
 interface HeaderProps {
   currentPath?: string;
@@ -317,9 +318,11 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '', onOpenCart }) 
                         }}
                         className="w-full text-left flex items-center gap-3 p-2 rounded-xl hover:bg-[#F8E9EB]/60 transition-colors group cursor-pointer"
                       >
-                        <img
+                        <OptimizedImage
                           src={prod.images[0]}
                           alt={prod.name}
+                          widthParam={80}
+                          qualityParam={70}
                           className="w-10 h-10 object-cover rounded-lg shrink-0 border border-[#E7E7E7] bg-[#FAFAF9]"
                         />
                         <div className="flex-1 min-w-0">

@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext';
 import { formatRupiah, calculateDiscountPercentage } from '../../utils/currency';
 import { createWhatsAppUrl, generateDirectProductOrderMessage } from '../../utils/whatsapp';
 import { navigateTo } from '../../utils/router';
+import { OptimizedImage } from './OptimizedImage';
 
 export const QuickViewModal: React.FC = () => {
   const { quickViewProduct, setQuickViewProduct, addItem } = useCart();
@@ -86,9 +87,11 @@ export const QuickViewModal: React.FC = () => {
         {/* Left: Product Images */}
         <div className="w-full md:w-1/2 bg-[#FAFAF9] p-4 flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E7E7E7]">
           <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-[#E7E7E7] flex items-center justify-center">
-            <img
+            <OptimizedImage
               src={product.images[selectedImageIndex] || product.images[0]}
               alt={product.name}
+              widthParam={500}
+              qualityParam={75}
               className="w-full h-full object-cover transition-all duration-300"
             />
             {product.badge && (
@@ -124,7 +127,13 @@ export const QuickViewModal: React.FC = () => {
                       : 'border-[#E7E7E7] hover:border-gray-400'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <OptimizedImage
+                    src={img}
+                    alt=""
+                    widthParam={120}
+                    qualityParam={70}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>

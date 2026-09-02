@@ -17,6 +17,7 @@ import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
 import { formatRupiah } from '../utils/currency';
 import { navigateTo } from '../utils/router';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 
 export const ChatPage: React.FC = () => {
   const {
@@ -347,9 +348,11 @@ export const ChatPage: React.FC = () => {
             {activeConversation.productSnapshot && (
               <div className="bg-white border-b border-[#E7E7E7] px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xs shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <img
+                  <OptimizedImage
                     src={activeConversation.productSnapshot.image}
                     alt={activeConversation.productSnapshot.name}
+                    widthParam={100}
+                    qualityParam={70}
                     className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-[#E7E7E7] bg-[#FAFAF9] shrink-0"
                   />
                   <div className="min-w-0">
@@ -461,9 +464,11 @@ export const ChatPage: React.FC = () => {
                                 : 'bg-[#FAFAF9] border-[#E7E7E7] text-[#242424]'
                             }`}
                           >
-                            <img
+                            <OptimizedImage
                               src={msg.productSnapshot.image}
                               alt={msg.productSnapshot.name}
+                              widthParam={100}
+                              qualityParam={70}
                               className="w-12 h-12 rounded-lg object-cover bg-white border border-black/10 shrink-0"
                             />
                             <div className="min-w-0 flex-1">
@@ -533,9 +538,11 @@ export const ChatPage: React.FC = () => {
                       <span className="text-[11px] font-bold text-[#8F1D2C] shrink-0">
                         Lampiran Produk:
                       </span>
-                      <img
+                      <OptimizedImage
                         src={activeConversation.productSnapshot.image}
                         alt=""
+                        widthParam={60}
+                        qualityParam={70}
                         className="w-6 h-6 rounded-md object-cover border border-[#8F1D2C]/30 bg-white shrink-0"
                       />
                       <span className="text-xs font-semibold text-[#242424] truncate max-w-[140px] sm:max-w-xs">
@@ -637,9 +644,11 @@ export const ChatPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 bg-[#FAFAF9] p-3 rounded-2xl border border-[#E7E7E7]">
-              <img
+              <OptimizedImage
                 src={activeConversation.productSnapshot.image}
                 alt=""
+                widthParam={100}
+                qualityParam={70}
                 className="w-12 h-12 rounded-xl object-cover border border-[#E7E7E7]"
               />
               <div className="min-w-0">

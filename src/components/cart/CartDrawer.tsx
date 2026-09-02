@@ -16,6 +16,7 @@ import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatRupiah } from '../../utils/currency';
 import { navigateTo } from '../../utils/router';
+import { OptimizedImage } from '../common/OptimizedImage';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -130,9 +131,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
             ) : (
               items.map((item) => (
                 <div key={item.id} className="pt-4 first:pt-0 flex gap-3.5 items-start">
-                  <img
+                  <OptimizedImage
                     src={item.product.images[0]}
                     alt={item.product.name}
+                    widthParam={160}
+                    qualityParam={75}
                     className="w-16 h-16 sm:w-18 sm:h-18 object-cover rounded-xl border border-[#E7E7E7] bg-[#FAFAF9] shrink-0"
                   />
 

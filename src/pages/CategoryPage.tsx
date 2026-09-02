@@ -4,6 +4,7 @@ import { useProducts } from '../context/ProductContext';
 import { ProductGrid } from '../components/product/ProductGrid';
 import { ChevronRight, ArrowLeft, Layers } from 'lucide-react';
 import { navigateTo } from '../utils/router';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 
 interface CategoryPageProps {
   categorySlug: string;
@@ -52,9 +53,11 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug }) => {
             </div>
           </div>
           <div className="md:col-span-4 aspect-video md:aspect-4/3 rounded-2xl overflow-hidden shadow-md">
-            <img
+            <OptimizedImage
               src={currentCategory.image}
               alt={currentCategory.name}
+              widthParam={600}
+              qualityParam={75}
               className="w-full h-full object-cover"
             />
           </div>

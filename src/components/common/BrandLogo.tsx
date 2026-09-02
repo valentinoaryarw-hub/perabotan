@@ -39,6 +39,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             src={buNgatminLogoImg}
             alt="Logo Perabotan Bu Ngatmin"
             className="w-full h-full object-cover"
+            decoding="async"
             referrerPolicy="no-referrer"
           />
         </div>

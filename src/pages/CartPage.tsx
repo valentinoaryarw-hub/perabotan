@@ -16,6 +16,7 @@ import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
 import { formatRupiah } from '../utils/currency';
 import { navigateTo } from '../utils/router';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 
 export const CartPage: React.FC = () => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice, totalItems } =
@@ -98,9 +99,11 @@ export const CartPage: React.FC = () => {
           {items.map((item) => (
             <div key={item.id} className="pt-4 first:pt-0 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <div className="flex items-center gap-3.5 min-w-0">
-                <img
+                <OptimizedImage
                   src={item.product.images[0]}
                   alt={item.product.name}
+                  widthParam={200}
+                  qualityParam={75}
                   className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-2xl border border-[#E7E7E7] bg-[#FAFAF9] shrink-0"
                 />
                 <div className="min-w-0">

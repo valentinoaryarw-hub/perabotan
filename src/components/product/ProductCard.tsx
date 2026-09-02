@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { formatRupiah, calculateDiscountPercentage } from '../../utils/currency';
 import { navigateTo } from '../../utils/router';
+import { OptimizedImage } from '../common/OptimizedImage';
 
 interface ProductCardProps {
   product: Product;
@@ -97,10 +98,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* Top Image Container */}
       <div className={`relative ${mobileAspectClass} w-full bg-[#FAFAF9] overflow-hidden`}>
-        <img
+        <OptimizedImage
           src={product.images[0]}
           alt={product.name}
-          loading="lazy"
+          widthParam={400}
+          qualityParam={75}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 

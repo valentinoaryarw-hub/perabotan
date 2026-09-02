@@ -23,6 +23,7 @@ import { useChat } from '../context/ChatContext';
 import { formatRupiah, calculateDiscountPercentage } from '../utils/currency';
 import { ProductGrid } from '../components/product/ProductGrid';
 import { navigateTo } from '../utils/router';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 
 interface ProductDetailPageProps {
   slug: string;
@@ -154,9 +155,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
           <div className="lg:col-span-6 space-y-4">
             {/* Main Featured Image */}
             <div className="relative aspect-square w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#FAFAF9] border border-[#E7E7E7] shadow-xs">
-              <img
+              <OptimizedImage
                 src={product.images[selectedImageIndex] || product.images[0]}
                 alt={product.name}
+                widthParam={800}
+                qualityParam={80}
+                priority={true}
                 className="w-full h-full object-cover transition-all duration-300"
               />
 
@@ -210,7 +214,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug }) =>
                         : 'border-[#E7E7E7] hover:border-gray-400 opacity-80 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <OptimizedImage
+                      src={img}
+                      alt=""
+                      widthParam={160}
+                      qualityParam={70}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

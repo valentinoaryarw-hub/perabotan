@@ -26,6 +26,7 @@ import { Product } from '../types';
 import { CATEGORIES } from '../data/categories';
 import { formatRupiah } from '../utils/currency';
 import { navigateTo } from '../utils/router';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 
 export const SellerPage: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, resetToDefaultProducts } = useProducts();
@@ -433,9 +434,11 @@ export const SellerPage: React.FC = () => {
                   <tr key={p.id} className="hover:bg-[#FAFAF9]/60">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <img
+                        <OptimizedImage
                           src={p.images[0]}
                           alt=""
+                          widthParam={100}
+                          qualityParam={70}
                           className="w-10 h-10 rounded-xl object-cover border border-[#E7E7E7] bg-[#FAFAF9]"
                         />
                         <div className="min-w-0">

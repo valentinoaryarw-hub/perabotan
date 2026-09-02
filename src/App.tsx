@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter } from './utils/router';
 import { AuthProvider } from './context/AuthContext';
 import { ProductProvider } from './context/ProductContext';
@@ -9,24 +9,69 @@ import { CartProvider } from './context/CartContext';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { MobileNavigation } from './components/common/MobileNavigation';
-import { AuthModal } from './components/common/AuthModal';
 import { ToastNotification } from './components/common/ToastNotification';
-import { CartDrawer } from './components/cart/CartDrawer';
-import { QuickViewModal } from './components/common/QuickViewModal';
 
-// Pages
+// 1. Initial/Critical Page (Direct import for instant LCP)
 import { HomePage } from './pages/HomePage';
-import { CatalogPage } from './pages/CatalogPage';
-import { CategoryPage } from './pages/CategoryPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { CartPage } from './pages/CartPage';
-import { ChatPage } from './pages/ChatPage';
-import { SellerPage } from './pages/SellerPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { AboutPage } from './pages/AboutPage';
-import { ContactPage } from './pages/ContactPage';
-import { FAQPage } from './pages/FAQPage';
-import { WishlistPage } from './pages/WishlistPage';
+
+// 2. Secondary & Dynamic Routes (Code-split with React.lazy)
+const CatalogPage = lazy(() =>
+  import('./pages/CatalogPage').then((m) => ({ default: m.CatalogPage }))
+);
+const CategoryPage = lazy(() =>
+  import('./pages/CategoryPage').then((m) => ({ default: m.CategoryPage }))
+);
+const ProductDetailPage = lazy(() =>
+  import('./pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+);
+const CartPage = lazy(() =>
+  import('./pages/CartPage').then((m) => ({ default: m.CartPage }))
+);
+const ChatPage = lazy(() =>
+  import('./pages/ChatPage').then((m) => ({ default: m.ChatPage }))
+);
+const SellerPage = lazy(() =>
+  import('./pages/SellerPage').then((m) => ({ default: m.SellerPage }))
+);
+const ProfilePage = lazy(() =>
+  import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage }))
+);
+const AboutPage = lazy(() =>
+  import('./pages/AboutPage').then((m) => ({ default: m.AboutPage }))
+);
+const ContactPage = lazy(() =>
+  import('./pages/ContactPage').then((m) => ({ default: m.ContactPage }))
+);
+const FAQPage = lazy(() =>
+  import('./pages/FAQPage').then((m) => ({ default: m.FAQPage }))
+);
+const WishlistPage = lazy(() =>
+  import('./pages/WishlistPage').then((m) => ({ default: m.WishlistPage }))
+);
+
+// 3. Modals and Drawers (Lazy loaded on-demand to reduce initial JS payload)
+const CartDrawer = lazy(() =>
+  import('./components/cart/CartDrawer').then((m) => ({ default: m.CartDrawer }))
+);
+const QuickViewModal = lazy(() =>
+  import('./components/common/QuickViewModal').then((m) => ({ default: m.QuickViewModal }))
+);
+const AuthModal = lazy(() =>
+  import('./components/common/AuthModal').then((m) => ({ default: m.AuthModal }))
+);
+
+// Lightweight Page Loading Skeleton
+const PageFallback: React.FC = () => (
+  <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-4">
+    <div className="h-8 bg-gray-200/80 rounded-2xl w-1/3"></div>
+    <div className="h-4 bg-gray-200/80 rounded-xl w-1/2"></div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="aspect-square bg-gray-200/80 rounded-2xl"></div>
+      ))}
+    </div>
+  </div>
+);
 
 export function App() {
   const { path, params } = useRouter();
@@ -41,7 +86,7 @@ export function App() {
   const renderContent = () => {
     const currentRoute = path || '/';
 
-    // 1. Home (Catalog-First)
+    // 1. Home (Catalog-First - Instant load)
     if (currentRoute === '/' || currentRoute === '') {
       return <HomePage />;
     }
@@ -49,10 +94,12 @@ export function App() {
     // 2. Catalog / Products
     if (currentRoute === '/products') {
       return (
-        <CatalogPage
-          initialSearch={params?.search || ''}
-          initialCategory={params?.category || ''}
-        />
+        <Suspense fallback={<PageFallback />}>
+          <CatalogPage
+            initialSearch={params?.search || ''}
+            initialCategory={params?.category || ''}
+          />
+        </Suspense>
       );
     }
 
@@ -61,7 +108,11 @@ export function App() {
       const categorySlug =
         params?.category ||
         currentRoute.replace('/category/', '').replace('/category', '');
-      return <CategoryPage categorySlug={categorySlug} />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <CategoryPage categorySlug={categorySlug} />
+        </Suspense>
+      );
     }
 
     // 4. Product Detail Page
@@ -69,47 +120,83 @@ export function App() {
       const productSlug =
         params?.slug ||
         currentRoute.replace('/product/', '').replace('/product', '');
-      return <ProductDetailPage slug={productSlug} />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <ProductDetailPage slug={productSlug} />
+        </Suspense>
+      );
     }
 
     // 5. Cart / Troli Page
     if (currentRoute === '/cart') {
-      return <CartPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <CartPage />
+        </Suspense>
+      );
     }
 
     // 6. In-Website Chat Page
     if (currentRoute === '/chat') {
-      return <ChatPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <ChatPage />
+        </Suspense>
+      );
     }
 
-    // 7. Admin / Seller Interface (Hidden at bottom of site)
+    // 7. Admin / Seller Interface
     if (currentRoute === '/seller' || currentRoute === '/admin') {
-      return <SellerPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <SellerPage />
+        </Suspense>
+      );
     }
 
     // 8. Profile Page
     if (currentRoute === '/profile') {
-      return <ProfilePage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <ProfilePage />
+        </Suspense>
+      );
     }
 
     // 9. About Page
     if (currentRoute === '/about') {
-      return <AboutPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <AboutPage />
+        </Suspense>
+      );
     }
 
     // 10. Contact Page
     if (currentRoute === '/contact') {
-      return <ContactPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <ContactPage />
+        </Suspense>
+      );
     }
 
     // 11. FAQ Page
     if (currentRoute === '/faq') {
-      return <FAQPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <FAQPage />
+        </Suspense>
+      );
     }
 
     // 12. Wishlist Page
     if (currentRoute === '/wishlist') {
-      return <WishlistPage />;
+      return (
+        <Suspense fallback={<PageFallback />}>
+          <WishlistPage />
+        </Suspense>
+      );
     }
 
     // Fallback to Home
@@ -142,17 +229,25 @@ export function App() {
                     onOpenCart={() => setIsCartDrawerOpen(true)}
                   />
 
-                  {/* Sliding Cart Drawer for Quick Access */}
-                  <CartDrawer
-                    isOpen={isCartDrawerOpen}
-                    onClose={() => setIsCartDrawerOpen(false)}
-                  />
+                  {/* Sliding Cart Drawer for Quick Access (Loaded lazily) */}
+                  <Suspense fallback={null}>
+                    {isCartDrawerOpen && (
+                      <CartDrawer
+                        isOpen={isCartDrawerOpen}
+                        onClose={() => setIsCartDrawerOpen(false)}
+                      />
+                    )}
+                  </Suspense>
 
-                  {/* Quick View Product Modal */}
-                  <QuickViewModal />
+                  {/* Quick View Product Modal (Loaded lazily) */}
+                  <Suspense fallback={null}>
+                    <QuickViewModal />
+                  </Suspense>
 
-                  {/* Global Lightweight Auth Modal */}
-                  <AuthModal />
+                  {/* Global Lightweight Auth Modal (Loaded lazily) */}
+                  <Suspense fallback={null}>
+                    <AuthModal />
+                  </Suspense>
 
                   {/* Global Toast Notifications */}
                   <ToastNotification />

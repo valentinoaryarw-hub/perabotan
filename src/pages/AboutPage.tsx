@@ -67,6 +67,8 @@ export const AboutPage: React.FC = () => {
           <img
             src={buNgatminLogoImg}
             alt="Toko Perabotan Bu Ngatmin"
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-contain"
             referrerPolicy="no-referrer"
           />
